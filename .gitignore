@@ -9,6 +9,9 @@
 # Generated evidence/artifacts (local)
 /validation/
 
+# Release artifacts (built, not source)
+/releases/
+
 # LaTeX build artifacts
 /paper/*.aux
 /paper/*.bbl
