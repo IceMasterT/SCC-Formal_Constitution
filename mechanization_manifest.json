@@ -1,0 +1,24 @@
+{
+  "schema": "scc.mechanization_manifest.v1",
+  "scope": "implemented_kernel_fortress_v1_subset",
+  "claim": "accepted v1 gate implies Prop-level v1 obligations in the small formal model",
+  "lean_targets": [
+    "formal/lean/SCC/KernelFortress/GateSoundness.lean",
+    "formal/lean/SCC/KernelFortress/PipelineWitness.lean"
+  ],
+  "coq_targets": [
+    "formal/coq/SCCKernelFortress.v"
+  ],
+  "rust_stress_targets": [
+    "rust/tests/memory_lineage_compression.rs",
+    "rust/tests/numerical_stability.rs",
+    "rust/tests/federation_quorum.rs",
+    "rust/fuzz/fuzz_targets/memory_lineage.rs"
+  ],
+  "non_claims": [
+    "not a proof of compiler correctness",
+    "not a proof of SHA-256 cryptographic security",
+    "not full mechanization of the entire SCC canon",
+    "not a proof of all semantic harms or model-objective safety"
+  ]
+}

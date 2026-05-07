@@ -1,0 +1,19 @@
+{
+  "schema": "scc.negative_corpus.manifest.v1",
+  "cases": [
+    "audit_event_hash_bad",
+    "checker_version_mismatch",
+    "descriptor_mismatch_audit",
+    "event_hash_bad",
+    "halt_absorption_violation",
+    "invalid_simplex",
+    "lineage_erasure",
+    "missing_required_field",
+    "next_hash_bad",
+    "prev_hash_bad",
+    "protected_mutation",
+    "risk_threshold_without_halt",
+    "schema_mismatch",
+    "wrong_step_mode"
+  ]
+}

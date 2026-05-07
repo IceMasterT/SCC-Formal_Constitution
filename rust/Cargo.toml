@@ -1,0 +1,23 @@
+[package]
+name = "scc-kernel"
+version = "1.0.0"
+edition = "2021"
+rust-version = "1.78"
+license = "CC-BY-SA-4.0"
+description = "Deterministic SCC proof-obligation checker kernel"
+publish = false
+
+[lib]
+name = "scc_kernel"
+path = "src/lib.rs"
+
+[dependencies]
+hex = "0.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+thiserror = "1"
+
+[dev-dependencies]
+glob = "0.3"
+proptest = "1"

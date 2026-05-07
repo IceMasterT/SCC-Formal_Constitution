@@ -1,0 +1,14 @@
+{
+  "schema": "scc.federation_case.v1",
+  "name": "valid_quorum_certificate",
+  "n": 4,
+  "f": 1,
+  "q": 3,
+  "certificate": {
+    "shard": "alpha",
+    "height": 7,
+    "state_root": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "signers": ["node:a", "node:b", "node:c"]
+  },
+  "expected": "accept_certificate_shape"
+}

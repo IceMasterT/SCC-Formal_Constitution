@@ -1,0 +1,11 @@
+{
+  "schema": "scc.federation_manifest.v1",
+  "model": "single-shard checker plus signed cross-shard certificates",
+  "quorum_rule": "n = 3f + 1, q = 2f + 1, intersection >= f + 1",
+  "cases": [
+    {"fixture": "cases/valid_quorum_certificate.json", "expected": "accept_certificate_shape"},
+    {"fixture": "cases/conflicting_quorum_certificate.json", "expected": "reject_equivocation"},
+    {"fixture": "cases/cross_shard_lineage_break.json", "expected": "reject_lineage_gap"},
+    {"fixture": "cases/bounded_halt_propagation.json", "expected": "require_halt_forwarding"}
+  ]
+}

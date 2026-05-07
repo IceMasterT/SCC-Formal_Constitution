@@ -1,0 +1,9 @@
+{
+  "schema": "scc.federation_case.v1",
+  "name": "cross_shard_lineage_break",
+  "source_shard": "alpha",
+  "target_shard": "beta",
+  "expected_parent_lineage_root": "1111111111111111111111111111111111111111111111111111111111111111",
+  "claimed_parent_lineage_root": "2222222222222222222222222222222222222222222222222222222222222222",
+  "expected": "reject_lineage_gap"
+}

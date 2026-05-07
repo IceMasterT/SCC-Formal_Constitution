@@ -1,0 +1,53 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.6in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{booktabs,tabularx,array}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\definecolor{sccblue}{RGB}{24,56,89}
+\hypersetup{hidelinks,pdftitle={SCC System Overview One Pager}}
+\begin{document}
+{\Large\bfseries SCC System Overview: Canon to Executable Evidence}\hfill {\small Mechanization-hardened map}
+
+\vspace{0.35em}\hrule\vspace{0.65em}
+
+\textbf{One sentence.} SCC treats legality as a runtime invariant: a system that cannot prove the legality of its next step has no right to take it.
+
+\begin{tabularx}{\linewidth}{p{0.18\linewidth}Yp{0.25\linewidth}}
+\toprule
+\textbf{Layer} & \textbf{Role} & \textbf{Primary evidence} \\
+\midrule
+Full SCC Canon & Formal authority: state spaces, hard clauses, proof obligations, audit determinism, lineage, refinement, federation assumptions, mechanization targets, and claim boundaries. & Articles, assumption ledger, mechanization targets. \\
+Engineering Handbook & Builder discipline: small deterministic kernel first, checker outside product logic, proof-obligation bundles, audit/replay, TCB hardening, release gates, handoff rules. & Build order, runbooks, TCB ledger, CI/CD gates. \\
+Kernel Fortress & Executable boundary artifact: checks one candidate transition before state acceptance using previous state, next state, event, audit event, proof-obligation bundle, and descriptor. & Rust checker, TypeScript reference, golden vectors, negative corpus, CI transcript. \\
+Formal bridge & Mechanization layer for the implemented v1 subset: Bool-to-Prop gate soundness, seven-stage witness completeness, and quorum-intersection arithmetic. & Lean/Coq files, mechanization manifest, formal-gate script. \\
+Builder Scaffold & Minimal starting implementation shape for teams adopting SCC discipline before handing off to Kernel Fortress-style evidence. & Python runtime skeleton, 16 tests, runbook, scaffold manifest. \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.5em}
+\textbf{Evidence flow.}
+\[
+\text{Canon clause} \rightarrow \text{Handbook rule} \rightarrow \text{Kernel Fortress gate} \rightarrow \text{Fixture} \rightarrow \text{Release transcript} \rightarrow \text{Reviewer claim.}
+\]
+
+\textbf{What is now locked down.}
+\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
+  \item Mechanization is no longer only aspirational: the package includes Lean/Coq bridge files and a formal-gate script for the implemented v1 subset.
+  \item Rust/TypeScript stress coverage now includes memory-compression lineage, numerical simplex bounds, and federation quorum arithmetic.
+  \item Distributed SCC is framed as a certificate layer over the single-node gate: quorum certificates, cross-shard lineage, and bounded halt propagation.
+  \item Numerical stability is named in the TCB ledger: finite binary64 encoding, negative-zero normalization, descriptor epsilon, drift bounds, and threshold margins.
+\end{itemize}
+
+\textbf{Non-claim.} These artifacts do not by themselves prove general AI safety, compiler correctness, operating-system correctness, SHA-256 security, semantic harmlessness, or the correctness of every possible SCC implementation.
+
+\vfill
+{\small\textbf{Reviewer reading order:} one-pager $\rightarrow$ NeurIPS E\&D paper $\rightarrow$ supplement README $\rightarrow$ release transcript $\rightarrow$ formal bridge $\rightarrow$ Canon/Handbook appendices.}
+\end{document}

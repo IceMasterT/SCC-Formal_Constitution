@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "scc.state.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "state_id",
+    "step",
+    "compute_root",
+    "memory_root",
+    "vector_clock",
+    "governance_weights",
+    "failure_mode",
+    "audit_hash",
+    "risk_vector",
+    "lineage_root",
+    "protected_root"
+  ]
+}

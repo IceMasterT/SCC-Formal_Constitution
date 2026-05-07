@@ -1,0 +1,43 @@
+name: scc-kernel-ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.78.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Release gates
+        run: bash scripts/collect_ci_evidence.sh
+      - name: Upload validation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: scc-kernel-release-gate-evidence
+          path: validation/
+
+  formal:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: leanprover/lean-action@v1
+        with:
+          working-directory: formal/lean
+      - name: Install Coq
+        run: sudo apt-get update && sudo apt-get install -y coq
+      - name: Formal bridge gates
+        run: bash scripts/run_formal_gates.sh

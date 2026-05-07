@@ -1,0 +1,37 @@
+name: release-artifacts
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run release gates
+        run: bash scripts/run_release_gates.sh
+      - name: Collect CI evidence
+        run: bash scripts/collect_ci_evidence.sh
+      - name: Build release bundle
+        run: |
+          mkdir -p dist
+          cp -R docs golden negative_corpus schemas rust ts tools scripts formal federation dist/
+          cp release_manifest.json README.md Makefile Dockerfile dist/
+          (cd dist && zip -r ../scc-kernel-fortress-${GITHUB_REF_NAME}.zip .)
+          sha256sum scc-kernel-fortress-${GITHUB_REF_NAME}.zip > scc-kernel-fortress-${GITHUB_REF_NAME}.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scc-kernel-fortress-${{ github.ref_name }}-release
+          path: |
+            scc-kernel-fortress-${{ github.ref_name }}.zip
+            scc-kernel-fortress-${{ github.ref_name }}.sha256
+            ci_evidence/**

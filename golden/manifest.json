@@ -1,0 +1,10 @@
+{
+  "schema": "scc.golden.manifest.v1",
+  "vectors": [
+    "valid_exact",
+    "valid_stutter",
+    "valid_safe_refined"
+  ],
+  "canonical_encoding": "binary-domain-separated-f64-be-v1",
+  "hash": "sha256"
+}

@@ -1,0 +1,28 @@
+[package]
+name = "scc-kernel-fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+serde_json = "1"
+scc-kernel = { path = ".." }
+
+[[bin]]
+name = "checker_roundtrip"
+path = "fuzz_targets/checker_roundtrip.rs"
+test = false
+doc = false
+bench = false
+
+
+[[bin]]
+name = "memory_lineage"
+path = "fuzz_targets/memory_lineage.rs"
+test = false
+doc = false
+bench = false

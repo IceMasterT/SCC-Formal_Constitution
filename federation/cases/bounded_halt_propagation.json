@@ -1,0 +1,13 @@
+{
+  "schema": "scc.federation_case.v1",
+  "name": "bounded_halt_propagation",
+  "source_shard": "alpha",
+  "target_shards": ["beta", "gamma"],
+  "source_failure_mode": 3,
+  "propagation_deadline_steps": 2,
+  "target_observations": [
+    {"shard": "beta", "observed_within_steps": 1, "failure_mode": 3},
+    {"shard": "gamma", "observed_within_steps": 2, "failure_mode": 3}
+  ],
+  "expected": "require_halt_forwarding"
+}

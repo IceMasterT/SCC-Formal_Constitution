@@ -1,0 +1,2 @@
+import test from 'node:test'; import assert from 'node:assert/strict'; import { accepts } from '../src/index.ts'; import { listNegative,readFixture } from './_util.ts';
+for(const file of listNegative()) test(`negative rejects: ${file}`,()=>{const fx=readFixture(`negative_corpus/cases/${file}`); const r=accepts(fx.po,fx.prev,fx.next,fx.event,fx.audit_event,fx.env); assert.equal(r.ok,false); assert.equal(r.error,fx.expected.error);});

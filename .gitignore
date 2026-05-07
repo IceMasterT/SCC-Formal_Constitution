@@ -1,0 +1,23 @@
+.DS_Store
+
+# Rust
+/rust/target/
+
+# Node
+/ts/node_modules/
+
+# Generated evidence/artifacts (local)
+/validation/
+
+# LaTeX build artifacts
+/paper/*.aux
+/paper/*.bbl
+/paper/*.bcf
+/paper/*.blg
+/paper/*.fdb_latexmk
+/paper/*.fls
+/paper/*.log
+/paper/*.out
+/paper/*.run.xml
+/paper/*.synctex.gz
+/paper/*.toc

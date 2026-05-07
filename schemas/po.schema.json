@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "scc.po.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "checker_version",
+    "step_id",
+    "mode",
+    "dom",
+    "inv",
+    "identity",
+    "governance",
+    "risk",
+    "audit",
+    "isolation",
+    "refinement",
+    "prev_state_hash",
+    "next_state_hash",
+    "event_hash",
+    "audit_event_hash",
+    "authorized_meta_path",
+    "recovery_path",
+    "witness_refs"
+  ]
+}

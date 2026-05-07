@@ -1,0 +1,13 @@
+{
+  "schema": "scc.federation_case.v1",
+  "name": "conflicting_quorum_certificate",
+  "n": 4,
+  "f": 1,
+  "q": 3,
+  "certificates": [
+    {"shard": "alpha", "height": 7, "state_root": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "signers": ["node:a", "node:b", "node:c"]},
+    {"shard": "alpha", "height": 7, "state_root": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "signers": ["node:b", "node:c", "node:d"]}
+  ],
+  "expected": "reject_equivocation",
+  "reason": "quorums overlap in two nodes, exceeding f=1, so at least one honest signer would have signed conflicting roots"
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "scc.event.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "event_id",
+    "kind",
+    "producer",
+    "step",
+    "parent_hash",
+    "payload_hash",
+    "attributes"
+  ]
+}
