@@ -1,0 +1,1669 @@
+
+\documentclass[11pt,oneside]{article}
+\usepackage[margin=0.85in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,longtable,array,tabularx}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{microtype}
+\usepackage{framed}
+\setcounter{secnumdepth}{0}
+\setcounter{tocdepth}{2}
+\setlength{\headheight}{14pt}
+\definecolor{shadecolor}{gray}{0.94}
+\hypersetup{colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black,pdfauthor={Ian Farquharson},pdftitle={Synthetic Cognitive Coding (SCC) - Engineering Handbook, Hardened Builder Edition}}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Synthetic Cognitive Coding (SCC)}
+\rhead{Engineering Handbook}
+\cfoot{\thepage}
+\titleformat{\section}{\Large\bfseries\sffamily}{\thesection}{0.75em}{}
+\titleformat{\subsection}{\large\bfseries\sffamily}{\thesubsection}{0.75em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily}{\thesubsubsection}{0.75em}{}
+\setlist[itemize]{topsep=3pt,itemsep=2pt,parsep=1pt,leftmargin=1.35em}
+\setlist[enumerate]{topsep=3pt,itemsep=2pt,parsep=1pt,leftmargin=1.55em}
+\lstset{basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible,keepspaces=true,frame=single,framerule=0.25pt,xleftmargin=0.4em,xrightmargin=0.4em,showstringspaces=false,tabsize=2}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\must}[1]{\textbf{Must:} #1}
+\newcommand{\avoid}[1]{\textbf{Avoid:} #1}
+\newenvironment{rulebox}{\begin{shaded}\noindent\textbf{Hard rule.} }{\end{shaded}}
+\newenvironment{warnbox}{\begin{shaded}\noindent\textbf{Failure mode.} }{\end{shaded}}
+\newenvironment{shipbox}{\begin{shaded}\noindent\textbf{Shipping gate.} }{\end{shaded}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\renewcommand{\arraystretch}{1.12}
+
+\begin{document}
+\begin{titlepage}
+\centering
+{\Huge\bfseries Synthetic Cognitive Coding (SCC)\\[0.35em]}
+{\LARGE Engineering Handbook\\[0.25em]}
+{\Large Hardened Builder Edition\\[0.25em]}
+{\Large Implementation-First Field Guide for SCC-Governed Systems\\[0.55em]}
+{\normalsize Engineering hardening pass for implementers, reviewers, SREs, and reference-kernel builders}\\[1.1em]
+{\large Practical companion to the formal constitutional-operational canon}\\[1.6em]
+{\large Written by Ian Farquharson}\\[0.25em]
+{\normalsize Emergent-Evo Engineer \textbar{} Neural-Synth Architect}\\[1.2em]
+{\normalsize Logo asset preserved by reference: \url{https://gist.github.com/user-attachments/assets/0b9fbc2b-ae9c-4a68-989c-84bae78849dc}}\\[1.2em]
+{\itshape Dedicated to my early mentor, Dr. Robert Whetsel, whose guidance first set me on this path.}\\[0.35em]
+{\normalsize LinkedIn: \url{https://www.linkedin.com/in/robertwhetsel}}\\[1.1em]
+{\itshape Special thanks to my friend Vlad Puscoiu, whose friendship over the years has helped keep my work aligned with my goals and aspirations. He was the person who first taught me how to open a terminal.}\\[0.35em]
+{\normalsize LinkedIn: \url{https://nl.linkedin.com/in/vlad-puscoiu-152436246}}\\[2em]
+\vfill
+{\large Handbook version date: April 29, 2026}\\[0.5em]
+{\normalsize Companion source canon date: April 26, 2026}\\[1em]
+{\normalsize Copyright \copyright{} 2025--2026 Ian Farquharson}\\[0.5em]
+{\normalsize Licensed under the Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0).}\par
+{\normalsize License URL: \url{https://creativecommons.org/licenses/by-sa/4.0/}}\\[1em]
+{\small This handbook is an implementation guide. The formal SCC canon remains the controlling source for theorem statements, constitutional clauses, proof obligations, and claim boundaries.}\\[0.6em]
+{\small Hardened builder edition note: this adaptation preserves the original handbook and adds implementation guardrails, repository setup, schema and transaction rules, CI/CD gates, security hardening, and runbook material.}
+\end{titlepage}
+
+\pagenumbering{roman}
+\section*{Abstract}
+This hardened builder edition turns the SCC formal canon into an implementation plan and an engineering setup, with an explicit handoff path to Kernel Fortress-style executable compliance gates. It is written for engineers who need to build, audit, test, optimize, operate, and ship SCC-governed systems without losing the formal discipline of the canon. The focus is practical: what to build first, what must never be bypassed, how to structure state, how to encode events, how to generate proof-obligation bundles, how to check them, how to replay a run, how to treat stuttering, how to instrument drift, how to secure the runtime boundary, how to define transactional storage, how to wire CI/CD release gates, and how to avoid the common mistakes that make a compliance story collapse. The handbook is shorter, more direct, and more operational than the scholarly specification. It does not replace the canon. It translates the canon into buildable, testable, reviewable engineering work.
+
+\section*{Reader Contract}
+This document assumes you are implementing SCC, reviewing an SCC implementation, or converting the formal canon into a working kernel. It deliberately uses short sentences, explicit gates, and practical examples. When there is any conflict between this handbook and the formal canon, the canon controls.
+
+\tableofcontents
+\newpage
+\pagenumbering{arabic}
+
+\section{How to Use This Handbook}
+Read this in build order. Do not start with federation. Do not start with optimization. Do not start with a UI. Build the kernel first.
+
+\begin{shipbox}
+A system is not SCC-governed because it has a policy prompt, a checklist, or a safety wrapper. It is SCC-governed only when ordinary execution steps are typed, checked, witnessed, audit-legible, lineage-preserving, and rejected or halted when the proof-obligation bundle fails.
+\end{shipbox}
+
+\subsection{Who should read which sections}
+\begin{tabularx}{\linewidth}{@{}p{0.26\linewidth}Y@{}}
+\toprule
+\textbf{Reader} & \textbf{Read first} \\
+\midrule
+Kernel engineer & Build Order; Minimum Data Model; PO Bundle; Seven-Stage Step Function. \\
+Verifier engineer & Checker First, Optimizer Second; Test Harness; Mechanization Priorities. \\
+Runtime engineer & Canonical Event Encoding; Audit and Replay; Performance Guide. \\
+Safety or governance reviewer & Engineering Contract; Governance and Risk; Deployment Readiness. \\
+Distributed-systems engineer & Federation and Quorum Safety, but only after the single-node kernel is stable. \\
+\bottomrule
+\end{tabularx}
+
+\subsection{One sentence}
+SCC makes legality a runtime invariant, not a post-hoc explanation.
+
+\subsection{The handbook rule}
+If a step cannot produce a valid proof-obligation bundle, the step is not merely suspicious. It is ill-formed.
+
+\section{Engineering Contract}
+The formal canon has three orders: constitutional, operational-mathematical, and meta-formal. The implementation must respect all three.
+
+\begin{itemize}
+\item The constitutional order says what must never be violated.
+\item The operational order says how state evolves.
+\item The meta-formal order says how implementation steps are witnessed, classified, and lifted back to the abstract specification.
+\end{itemize}
+
+In code, this means four things.
+
+\begin{enumerate}
+\item Every state has a declared type.
+\item Every ordinary step has a declared transition path.
+\item Every step emits a proof-obligation bundle.
+\item Every bundle is checked before the step is accepted.
+\end{enumerate}
+
+\begin{rulebox}
+Fail closed. If the checker is unavailable, corrupted, stale, or ambiguous, do not continue ordinary execution.
+\end{rulebox}
+
+\subsection{The four non-negotiables}
+\begin{longtable}{@{}p{0.23\linewidth}p{0.35\linewidth}p{0.32\linewidth}@{}}
+\toprule
+\textbf{Non-negotiable} & \textbf{Engineering meaning} & \textbf{Common failure} \\
+\midrule
+Typed state & Every coordinate has a declared domain and serializer. & Storing mixed ad-hoc dictionaries and hoping tests catch drift. \\
+Hard clauses & Protected rules are checked before ordinary compute is accepted. & Treating hard clauses as advisory policy text. \\
+Proof-obligation bundle & Each step has machine-checkable evidence. & Writing logs but not executable witnesses. \\
+Replay & Same state, event, build, and deterministic mode reproduce the same abstract trajectory. & Hashing non-canonical data or depending on wall-clock randomness. \\
+\bottomrule
+\end{longtable}
+
+\section{The System You Are Building}
+An SCC implementation is a small constitutional runtime around a cognitive system. The cognitive system can be large. The SCC kernel should not be.
+
+\subsection{Minimal architecture}
+\begin{lstlisting}[language=Python,caption={Minimal SCC runtime shape.}]
+class SCCRuntime:
+    def __init__(self, constitution, checker, audit_log, store):
+        self.constitution = constitution
+        self.checker = checker
+        self.audit_log = audit_log
+        self.store = store
+
+    def step(self, state, raw_input, env):
+        event = canonicalize_input(raw_input, env)
+        candidate, witnesses = seven_stage_transition(state, event, env)
+        po = build_bundle(state, event, candidate, witnesses, env)
+
+        if not self.checker.accepts(po):
+            return enter_halt(state, event, reason="po_rejected")
+
+        self.audit_log.append(po.audit_event)
+        self.store.commit(candidate, po)
+        return candidate
+\end{lstlisting}
+
+\subsection{What belongs in the SCC kernel}
+\begin{itemize}
+\item State schema.
+\item Hard-clause registry.
+\item Canonical event encoder.
+\item Seven-stage step executor.
+\item Proof-obligation bundle builder.
+\item Witness checker.
+\item Audit hash update.
+\item Replay harness.
+\item Halt and recovery gate.
+\end{itemize}
+
+\subsection{What should stay outside the kernel}
+\begin{itemize}
+\item Model weights.
+\item User interface logic.
+\item Product telemetry dashboards.
+\item Convenience routing.
+\item Non-critical caching.
+\item Long-running analytics jobs.
+\end{itemize}
+
+The kernel should be boring. Boring is good. Boring can be audited.
+
+\section{Runtime Boundaries and TCB Hardening}
+The kernel is small, but it is still a trusted system. Name the trusted pieces. Keep their interfaces narrow. Make every shortcut visible in the TCB ledger.
+
+\subsection{Dependency direction}
+A hardened implementation has one-way dependencies.
+
+\begin{lstlisting}[caption={Allowed dependency direction.}]
+events -> transition -> witnesses -> po_bundle -> checker -> store_commit -> output
+schemas -> serializers -> hashes -> checker
+constitution -> hard_clause_registry -> checker
+\end{lstlisting}
+
+The checker may depend on schemas, canonical serializers, hash functions, hard-clause definitions, and witness readers. It must not depend on the transition implementation that produced the candidate.
+
+\begin{rulebox}
+Do not let the checker import product routing, model execution, prompt construction, telemetry clients, live network clients, or mutable runtime containers. The checker is a verifier, not a participant in the run.
+\end{rulebox}
+
+\subsection{Trusted computing base ledger}
+\begin{longtable}{@{}p{0.24\linewidth}p{0.34\linewidth}p{0.32\linewidth}@{}}
+\toprule
+\textbf{TCB item} & \textbf{Trusted for} & \textbf{Hardening expectation} \\
+\midrule
+Canonical serializer & Stable event, state, bundle, and audit bytes. & Golden vectors across machines; no object reprs; schema id included. \\
+Hash and signature library & Audit chain, state identity, certificates. & Pinned versions; domain separation; signature test vectors. \\
+Checker & Bundle rejection and acceptance. & Side-effect free; deterministic; negative corpus; soundness target. \\
+Storage transaction layer & Atomic state, bundle, and audit commit. & Single commit boundary; idempotent step ids; crash-recovery tests. \\
+Clock and randomness adapter & Deterministic replay boundary. & No direct wall-clock or random calls in kernel; recorded inputs only. \\
+Compiler and runtime & Executes trusted kernel code. & Version pinned in release manifest; reproducible build notes. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Step result contract}
+Do not return raw model output from the transition path. Return an explicit step result after the checker and store commit have completed.
+
+\begin{lstlisting}[language=Python,caption={Hardened step result contract.}]
+from dataclasses import dataclass
+from enum import Enum
+
+class StepStatus(str, Enum):
+    ACCEPTED = "accepted"
+    REJECTED = "rejected"
+    HALTED = "halted"
+
+@dataclass(frozen=True)
+class StepResult:
+    status: StepStatus
+    state_hash: str
+    audit_hash: str
+    po_hash: str | None
+    output_ref: str | None
+    reason: str | None
+
+# Output is only reachable when status == ACCEPTED and the commit succeeded.
+\end{lstlisting}
+
+\subsection{Dangerous imports and capabilities}
+\begin{tabularx}{\linewidth}{@{}p{0.28\linewidth}Y@{}}
+\toprule
+\textbf{Capability} & \textbf{Kernel rule} \\
+\midrule
+Network calls & Forbidden in checker and canonicalization. Use recorded events or signed inputs. \\
+Wall-clock time & Forbidden in replay-sensitive logic. Time must enter as a canonical event field. \\
+Randomness & Forbidden in checker. Allowed only when seed, source, and numerical mode are recorded. \\
+Mutable globals & Forbidden in checker. Treat global caches as outside the trusted path. \\
+Environment variables & Not a source of law. Descriptor values must be committed and hashed. \\
+Product telemetry & Never a proof source. Telemetry can observe; it cannot authorize. \\
+\bottomrule
+\end{tabularx}
+
+\begin{shipbox}
+A builder-ready kernel has a TCB ledger in the repository. Every trusted dependency has an owner, version, reason for trust, test vector, and replacement plan.
+\end{shipbox}
+
+
+\section{Builder Quickstart}
+This section is for the engineer opening a blank repository. The goal is not to build the whole cognitive system. The goal is to build the smallest SCC kernel that can reject a bad step and replay a good step.
+
+\subsection{Repository shape}
+Start with a boring reference layout. Keep product code outside the kernel.
+
+\begin{lstlisting}[caption={Day-one repository layout.}]
+scc-reference/
+  pyproject.toml
+  Makefile
+  src/scc_kernel/
+    state.py
+    events.py
+    audit.py
+    po.py
+    checker.py
+    transition.py
+    runtime.py
+    store.py
+    replay.py
+  tests/
+    test_negative_corpus.py
+    test_replay.py
+    test_halt.py
+    test_protected_state.py
+  fixtures/
+    normal_trace.json
+    rejected_trace.json
+  docs/
+    deployment_descriptor.yaml
+    hard_clauses.yaml
+    tcb_ledger.md
+    runbook.md
+\end{lstlisting}
+
+\subsection{First runnable slice}
+Build a vertical slice before adding intelligence.
+
+\begin{enumerate}
+\item Define \code{SCCState} with canonical serialization and golden hash vectors.
+\item Define one canonical event type, one benign event fixture, and one malicious event fixture.
+\item Define \code{POBundle} and make missing fields unrepresentable where possible.
+\item Build a checker that accepts one valid fixture and rejects the negative corpus.
+\item Build a transition that can only stutter, halt, or perform a tiny deterministic memory update.
+\item Commit state, PO bundle, and audit event atomically.
+\item Replay the valid trace twice and compare state hashes.
+\item Run the malicious trace and prove output cannot escape.
+\end{enumerate}
+
+\subsection{Make targets}
+Every builder should be able to run the same gates locally and in CI.
+
+\begin{lstlisting}[caption={Minimum make targets.}]
+make test        # unit tests and negative corpus
+make replay      # deterministic replay fixtures
+make verify      # schemas, checker, audit chain, replay, lint
+make package     # release manifest and artifact bundle
+\end{lstlisting}
+
+\subsection{Engineer handoff checklist}
+\begin{longtable}{@{}p{0.32\linewidth}p{0.58\linewidth}@{}}
+\toprule
+\textbf{Artifact} & \textbf{Builder-ready condition} \\
+\midrule
+README & Explains the runtime contract, commands, and first trace to run. \\
+Descriptor & Pins build id, checker version, numerical mode, schema ids, and active hard clauses. \\
+Golden vectors & Include canonical bytes and hashes for state, event, PO, and audit event. \\
+Negative corpus & Fails for every known bad pattern in this handbook. \\
+Replay fixtures & Include accepted, rejected, halted, stutter, and recovery-meta-path traces. \\
+Runbook & Tells operators what to do when checker, audit, replay, or lineage fails. \\
+TCB ledger & Names trusted dependencies, versions, owners, and test evidence. \\
+\bottomrule
+\end{longtable}
+
+\begin{shipbox}
+The first engineering milestone is not a smart agent. It is a kernel that can prove it refuses to be a dumb illegal one.
+\end{shipbox}
+
+
+\section{Build Order}
+Build SCC in this order. Changing the order usually creates fake confidence.
+
+\begin{enumerate}
+\item Define the state schema.
+\item Define the hard-clause schema.
+\item Define canonical event encoding.
+\item Define audit hash update.
+\item Define the proof-obligation bundle.
+\item Build the checker.
+\item Build the seven-stage transition.
+\item Add replay.
+\item Add drift metrics.
+\item Add governance and risk updates.
+\item Add memory and lineage operations.
+\item Add \(\rho\) and \(\rho_b\) extraction.
+\item Add negative tests.
+\item Add performance instrumentation.
+\item Add federation only after the single-node system survives adversarial tests.
+\end{enumerate}
+
+\begin{warnbox}
+Building the agent first and bolting SCC on later usually produces a wrapper, not a constitutional runtime.
+\end{warnbox}
+
+\subsection{Implementation milestones}
+\begin{longtable}{@{}p{0.16\linewidth}p{0.34\linewidth}p{0.40\linewidth}@{}}
+\toprule
+\textbf{Milestone} & \textbf{Done when} & \textbf{Do not move on if} \\
+\midrule
+M0: State & Every coordinate has a type, serializer, and test fixture. & Protected state can be mutated by ordinary code. \\
+M1: Events & Canonical event bytes are stable across machines. & Hashes differ between equivalent runs. \\
+M2: PO bundle & The bundle has all required fields and witness references. & Fields are comments or strings instead of executable booleans. \\
+M3: Checker & Accepted bundles imply the required predicates in tests and proof targets. & The checker trusts the component that produced the bundle. \\
+M4: Step & Every ordinary step goes through seven stages. & Any shortcut can emit output without a checked bundle. \\
+M5: Replay & A recorded run can be replayed deterministically. & Replay depends on live services, wall-clock time, or nondeterministic serialization. \\
+M6: Stress & Negative tests force rejection or halt. & The happy path is the only tested path. \\
+\bottomrule
+\end{longtable}
+
+\section{Minimum Data Model}
+Start with one explicit state record. Keep it boring. Make every field serializable.
+
+\subsection{Abstract state fields}
+\begin{lstlisting}[language=Python,caption={Minimal state record.}]
+from dataclasses import dataclass
+from typing import Mapping, Tuple
+
+Hash = str
+LineageId = str
+ProtectedRoot = str
+
+@dataclass(frozen=True)
+class SCCState:
+    compute_ref: str              # h: reference to compute state
+    memory_root: Hash             # M: content-addressed memory root
+    vector_clock: Mapping[str, int]
+    governance_weights: Tuple[float, ...]
+    failure_mode: int             # 0, 1, 2, or 3. 3 means halt.
+    audit_hash: Hash              # H_t
+    risk_vector: Tuple[float, ...]
+    lineage_id: LineageId
+    protected_root: ProtectedRoot # p: ordinary code must not mutate this
+\end{lstlisting}
+
+\subsection{Protected coordinate rule}
+The protected coordinate is not just another field. It is the sovereignty membrane.
+
+\begin{rulebox}
+No ordinary transition may mutate \code{protected_root}. Only an explicitly authorized exception or amendment path may touch it.
+\end{rulebox}
+
+\subsection{Practical invariant checks}
+\begin{lstlisting}[language=Python,caption={Basic invariant checks.}]
+def valid_failure_mode(mode: int) -> bool:
+    return mode in {0, 1, 2, 3}
+
+def valid_simplex(weights: tuple[float, ...], eps: float = 1e-9) -> bool:
+    return all(w >= -eps for w in weights) and abs(sum(weights) - 1.0) <= eps
+
+def protected_unchanged(prev: SCCState, nxt: SCCState, authorized: bool) -> bool:
+    if authorized:
+        return True
+    return prev.protected_root == nxt.protected_root
+
+def halt_absorbed(prev: SCCState, nxt: SCCState, recovery_authorized: bool) -> bool:
+    if prev.failure_mode == 3 and not recovery_authorized:
+        return nxt.failure_mode == 3
+    return True
+\end{lstlisting}
+
+\section{Canonical Event Encoding}
+Replay dies when encoding is sloppy. Fix it early.
+
+\subsection{Rules}
+\begin{enumerate}
+\item Encode to UTF-8 bytes.
+\item Sort object keys.
+\item Normalize timestamps.
+\item Avoid raw floats in canonical records unless the numerical mode is fixed.
+\item Include build id, descriptor id, and schema version.
+\item Domain-separate every hash.
+\end{enumerate}
+
+\begin{lstlisting}[language=Python,caption={Canonical JSON encoder.}]
+import json
+import hashlib
+
+DOMAIN = b"SCC-AUDIT-V1\x00"
+
+def canonical_bytes(obj: dict) -> bytes:
+    return json.dumps(
+        obj,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    ).encode("utf-8")
+
+def audit_hash(prev_hash: str, event: dict) -> str:
+    h = hashlib.sha256()
+    h.update(DOMAIN)
+    h.update(bytes.fromhex(prev_hash))
+    h.update(canonical_bytes(event))
+    return h.hexdigest()
+\end{lstlisting}
+
+\subsection{Do this, not that}
+\begin{tabularx}{\linewidth}{@{}p{0.33\linewidth}p{0.33\linewidth}Y@{}}
+\toprule
+\textbf{Do this} & \textbf{Not that} & \textbf{Why} \\
+\midrule
+Hash canonical bytes. & Hash Python object reprs. & Object reprs are not stable enough for replay. \\
+Use domain tags. & Reuse a bare hash function everywhere. & Domain tags prevent accidental cross-protocol ambiguity. \\
+Record schema version. & Infer schema from context. & Context disappears during audit. \\
+Freeze numerical mode. & Let each machine choose float behavior. & Drift measurements become non-reproducible. \\
+\bottomrule
+\end{tabularx}
+
+\section{Schema, Versioning, and Migration Discipline}
+Schema drift is one of the fastest ways to lose replay. Treat schemas as runtime law, not documentation.
+
+\subsection{Schema contract}
+Every canonical object must carry enough information for another implementation to parse, hash, and reject it without oral history.
+
+\begin{itemize}
+\item State records carry a state schema id.
+\item Events carry an event schema id, build id, descriptor id, and producer id.
+\item PO bundles carry a PO schema id and checker version.
+\item Audit events carry an audit schema id and hash domain.
+\item Descriptors carry all active schema ids and numerical mode.
+\end{itemize}
+
+\begin{rulebox}
+A field added without a schema bump is a replay break. A field removed without a migration event is an audit break.
+\end{rulebox}
+
+\subsection{Schema registry}
+\begin{lstlisting}[caption={Minimal schema registry entry.}]
+schema: scc.schema.registry.v1
+schemas:
+  scc.state.v1:
+    canonicalization: canonical-json-v1
+    hash_domain: SCC-STATE-V1
+    owner: kernel
+  scc.event.v1:
+    canonicalization: canonical-json-v1
+    hash_domain: SCC-EVENT-V1
+    owner: runtime
+  scc.po.v1:
+    canonicalization: canonical-json-v1
+    hash_domain: SCC-PO-V1
+    owner: checker
+\end{lstlisting}
+
+\subsection{Wire object envelope}
+Put schema, descriptor, and build identity at the envelope. Do not bury them in free-form payloads.
+
+\begin{lstlisting}[caption={Canonical event envelope.}]
+{
+  "schema": "scc.event.v1",
+  "step_id": "node-a:000001",
+  "build_id": "build:abc123",
+  "descriptor_id": "theta:prod-a",
+  "producer": "gateway-a",
+  "payload_type": "user_input",
+  "payload_hash": "...",
+  "payload": {"kind": "text", "body": "..."}
+}
+\end{lstlisting}
+
+\subsection{Migration rules}
+\begin{enumerate}
+\item Migrations are typed events, not silent deserializers.
+\item Migration input and output hashes are recorded.
+\item The checker accepts a migrated bundle only if the descriptor names the migration path.
+\item A migration that touches protected state must use an authorized meta-path.
+\item Old replay fixtures remain in the test suite until their migration proof is checked.
+\end{enumerate}
+
+\subsection{Compatibility table}
+\begin{longtable}{@{}p{0.22\linewidth}p{0.33\linewidth}p{0.35\linewidth}@{}}
+\toprule
+\textbf{Change} & \textbf{Compatibility} & \textbf{Required action} \\
+\midrule
+Add optional non-semantic field & Sometimes compatible. & Schema bump; canonical default; golden vector. \\
+Rename field & Breaking. & Migration event and replay fixture. \\
+Change hash domain & Breaking. & New descriptor and genesis or declared migration. \\
+Change numerical mode & Breaking for metrics. & New descriptor, drift baselines, replay fixtures. \\
+Change checker logic & Potentially breaking. & Checker version bump and negative corpus review. \\
+\bottomrule
+\end{longtable}
+
+
+\section{Proof-Obligation Bundle}
+The proof-obligation bundle is the central engineering artifact. Treat it like the syscall boundary of SCC.
+
+\subsection{Minimum bundle}
+\begin{lstlisting}[language=Python,caption={Proof-obligation bundle.}]
+from dataclasses import dataclass
+from enum import Enum
+from typing import Any
+
+class StepMode(str, Enum):
+    EXACT = "Exact"
+    STUTTER = "Stutter"
+    SAFE_REFINED = "SafeRefined"
+
+@dataclass(frozen=True)
+class POBundle:
+    schema_version: str
+    step_id: str
+    mode: StepMode
+
+    dom: bool
+    inv: bool
+    identity: bool
+    governance: bool
+    risk: bool
+    audit: bool
+    isolation: bool
+    refinement: bool
+
+    prev_state_hash: str
+    next_state_hash: str
+    event_hash: str
+    audit_event: dict
+    witness_refs: dict[str, Any]
+    checker_version: str
+\end{lstlisting}
+
+\subsection{Bundle rule}
+\begin{rulebox}
+The output is not accepted until the bundle is accepted. Logs are not enough. Comments are not enough. A bundle is evidence only if the checker can evaluate it.
+\end{rulebox}
+
+\subsection{Bundle fields}
+\begin{longtable}{@{}p{0.18\linewidth}p{0.42\linewidth}p{0.30\linewidth}@{}}
+\toprule
+\textbf{Field} & \textbf{Meaning} & \textbf{Reject when} \\
+\midrule
+\code{dom} & State is in the admissible domain. & Missing required coordinate, invalid mode, invalid simplex. \\
+\code{inv} & Hard invariants still hold. & Any active hard clause fails. \\
+\code{identity} & Identity continuity is preserved. & Lineage rupture, protected mutation, or illegal drift. \\
+\code{governance} & Governance update was lawful. & Update bypasses projection or legitimacy gate. \\
+\code{risk} & Risk law and halt law were applied. & Halt threshold is crossed without halt. \\
+\code{audit} & Audit event and hash update are canonical. & Non-canonical bytes or broken hash chain. \\
+\code{isolation} & Protected coordinate is untouched unless authorized. & Ordinary path changes protected state. \\
+\code{refinement} & Step classification is valid. & Exact, Stutter, and SafeRefined all fail or overlap improperly. \\
+\bottomrule
+\end{longtable}
+
+\section{Checker First, Optimizer Second}
+The checker is the compliance gate. It should be small. It should be boring. It should not trust the producer.
+
+\begin{lstlisting}[language=Python,caption={Fail-closed checker skeleton.}]
+REQUIRED_TRUE_FIELDS = [
+    "dom", "inv", "identity", "governance", "risk",
+    "audit", "isolation", "refinement",
+]
+
+def accepts_bundle(po: POBundle, prev: SCCState, nxt: SCCState, env) -> bool:
+    if po.schema_version != env.expected_po_schema:
+        return False
+    if po.checker_version != env.checker_version:
+        return False
+    if any(getattr(po, field) is not True for field in REQUIRED_TRUE_FIELDS):
+        return False
+    if not verify_state_hash(po.prev_state_hash, prev):
+        return False
+    if not verify_state_hash(po.next_state_hash, nxt):
+        return False
+    if not verify_audit_event(po.audit_event, prev, nxt, env):
+        return False
+    if not verify_step_mode(po.mode, prev, nxt, env):
+        return False
+    return True
+\end{lstlisting}
+
+\subsection{Checker design}
+\begin{itemize}
+\item Keep the checker deterministic.
+\item Keep it side-effect free.
+\item Keep it versioned.
+\item Keep it separately testable.
+\item Treat every accepted shortcut as part of the trusted computing base.
+\end{itemize}
+
+\begin{warnbox}
+The most dangerous checker is one that reads the same mutable runtime objects produced by the transition path. The checker should verify committed candidate artifacts, canonical bytes, and witness references.
+\end{warnbox}
+
+\subsection{Boolean-to-predicate boundary}
+The formal canon distinguishes executable booleans from mathematical propositions. Engineering translation: a boolean flag is not a proof by itself. It is a result from a checker with a declared soundness argument.
+
+\begin{lstlisting}[caption={Lean-style target for checker soundness.}]
+theorem checker_sound
+  (po : POBundle)
+  (h : checker_accepts po = true) :
+  Dom po /\ Inv po /\ Identity po /\ Audit po /\ Refinement po := by
+  -- The implementation proof must connect executable checks to predicates.
+  -- Until this theorem exists, checker soundness remains a TCB item.
+  admit
+\end{lstlisting}
+
+\section{The Seven-Stage Step Function}
+Every ordinary step factors through seven stages. Do not let product code bypass them.
+
+\begin{enumerate}
+\item Input and observation intake.
+\item Constitutional and hard-clause check.
+\item Governance and risk update.
+\item Core compute and shard coupling.
+\item Memory and lineage operation.
+\item Audit and administrative advancement.
+\item Refinement classification and output emission.
+\end{enumerate}
+
+\subsection{Implementation skeleton}
+\begin{lstlisting}[language=Python,caption={Seven-stage transition skeleton.}]
+def seven_stage_transition(state: SCCState, event: dict, env):
+    witnesses = {}
+
+    s1, witnesses["intake"] = stage_1_intake(state, event, env)
+    s2, witnesses["clauses"] = stage_2_hard_clause_check(s1, env)
+    s3, witnesses["gov_risk"] = stage_3_governance_risk(s2, event, env)
+    s4, witnesses["compute"] = stage_4_core_compute(s3, event, env)
+    s5, witnesses["memory"] = stage_5_memory_lineage(s4, event, env)
+    s6, witnesses["audit"] = stage_6_audit_admin(s5, event, env)
+    s7, witnesses["refinement"] = stage_7_refinement_output(s6, event, env)
+
+    return s7, witnesses
+\end{lstlisting}
+
+\subsection{Stage outputs}
+Each stage should return a candidate state and a typed witness. The witness must be small enough to check. Do not return arbitrary prose.
+
+\begin{lstlisting}[language=Python,caption={Typed witness example.}]
+@dataclass(frozen=True)
+class GovernanceWitness:
+    legitimacy_ok: bool
+    projected_to_simplex: bool
+    drift_bound: float
+    previous_weights_hash: str
+    next_weights_hash: str
+\end{lstlisting}
+
+\begin{rulebox}
+Stage witnesses are not audit logs. They are inputs to the proof-obligation bundle. Logs explain. Witnesses verify.
+\end{rulebox}
+
+\section{State Metrics and Drift Tracking}
+SCC uses metrics to reason about non-protected state. Metrics do not authorize protected-coordinate changes.
+
+\subsection{Engineering metric}
+Start with a weighted product metric over non-protected coordinates.
+
+\begin{lstlisting}[language=Python,caption={Weighted drift calculation.}]
+def indicator(a, b) -> int:
+    return 0 if a == b else 1
+
+def drift(prev: SCCState, nxt: SCCState, weights) -> float:
+    return (
+        weights["compute"] * compute_distance(prev.compute_ref, nxt.compute_ref)
+        + weights["memory"] * memory_distance(prev.memory_root, nxt.memory_root)
+        + weights["clock"] * l1_clock(prev.vector_clock, nxt.vector_clock)
+        + weights["governance"] * l1(prev.governance_weights, nxt.governance_weights)
+        + weights["failure"] * indicator(prev.failure_mode, nxt.failure_mode)
+        + weights["risk"] * l1(prev.risk_vector, nxt.risk_vector)
+        + weights["lineage"] * indicator(prev.lineage_id, nxt.lineage_id)
+    )
+\end{lstlisting}
+
+\subsection{Metric gotchas}
+\begin{itemize}
+\item Do not include the protected coordinate in ordinary contraction claims unless the formal model explicitly allows it.
+\item Do not use a metric value as a legality certificate.
+\item Do not compare drift across builds unless weights and coordinate metrics are pinned.
+\item Do not hide metric weights in code constants. Put them in the execution descriptor.
+\end{itemize}
+
+\subsection{When a drift spike matters}
+A drift spike matters when it changes risk, violates a bound, indicates lineage rupture, or invalidates a contraction/stability assumption. A spike does not automatically prove illegality. It is evidence. The checker still decides lawfulness.
+
+\section{Governance, Risk, and Halt}
+Governance is state. Risk is state. Halt is state. Treat them that way.
+
+\subsection{Governance update}
+Governance weights live in a simplex. A lawful ordinary update projects back into the simplex and records the legitimacy witness.
+
+\begin{lstlisting}[language=Python,caption={Simplex projection sketch.}]
+def project_simplex(v):
+    # Production code should use a reviewed numerical routine.
+    # This sketch is for shape only.
+    n = len(v)
+    u = sorted(v, reverse=True)
+    cssv = [sum(u[: i + 1]) - 1.0 for i in range(n)]
+    rho = max(i for i in range(n) if u[i] - cssv[i] / (i + 1) > 0)
+    theta = cssv[rho] / (rho + 1)
+    return tuple(max(x - theta, 0.0) for x in v)
+
+def governance_step(w, proposal, eta, legitimacy_ok):
+    if not legitimacy_ok:
+        return w
+    return project_simplex([wi + eta * gi for wi, gi in zip(w, proposal)])
+\end{lstlisting}
+
+\subsection{Risk update}
+Risk must be explicit. Do not hide risk in a log message.
+
+\begin{lstlisting}[language=Python,caption={Risk-to-halt gate.}]
+def apply_risk_law(state: SCCState, risk_event, env) -> SCCState:
+    r_next = env.risk_model.update(state.risk_vector, risk_event)
+    mode_next = state.failure_mode
+
+    if env.risk_model.requires_halt(r_next):
+        mode_next = 3
+    elif env.risk_model.requires_escalation(r_next):
+        mode_next = max(mode_next, 2)
+
+    return replace(state, risk_vector=r_next, failure_mode=mode_next)
+\end{lstlisting}
+
+\subsection{Halt rule}
+\begin{rulebox}
+Failure mode 3 is absorbing for ordinary execution. Recovery is not an ordinary step. It is a constitutionally authorized meta-path.
+\end{rulebox}
+
+\subsection{Halt decision tree}
+\begin{enumerate}
+\item Is the current state already in halt? If yes, stay halted unless recovery is authorized.
+\item Did risk cross a halt threshold? If yes, enter halt.
+\item Did the PO checker reject? If yes, enter halt or reject the candidate according to the constitution.
+\item Did the protected coordinate change without authorization? If yes, enter halt.
+\item Otherwise, continue ordinary execution.
+\end{enumerate}
+
+
+
+\section{Security and Abuse Hardening}
+SCC hardening is not only about mathematical checks. It is also about adversarial inputs, compromised services, operational mistakes, and abuse of gray areas.
+
+\subsection{Threat model}
+\begin{longtable}{@{}p{0.30\linewidth}p{0.30\linewidth}p{0.30\linewidth}@{}}
+\toprule
+\textbf{Threat} & \textbf{Likely attack} & \textbf{Required control} \\
+\midrule
+Forged event & Submit input with false descriptor or step id. & Signed ingress, canonical envelope, replayed hash check. \\
+Checker bypass & Emit product output before proof acceptance. & StepResult contract, output gate, integration test. \\
+Protected-state mutation & Ordinary code rewrites protected root. & Immutable state record, isolation check, meta-path only. \\
+Audit tampering & Edit or delete audit records. & Append-only storage, hash chain verification, signed checkpoints. \\
+Replay poison & Depend on live services or wall-clock time. & Dependency injection, recorded events, deterministic mode. \\
+Resource exhaustion & Huge input, oversized witness, recursive lineage. & Input limits, witness size limits, timeout budget, halt escalation. \\
+Governance capture & Illegitimate proposal changes weights. & Legitimacy witness, simplex projection, drift bound. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Input hardening}
+\begin{enumerate}
+\item Reject inputs that do not parse into a known event schema.
+\item Apply size limits before canonicalization and before model execution.
+\item Normalize once and record the canonical bytes.
+\item Record payload hashes for large payloads. Store payloads in content-addressed storage.
+\item Treat parser errors as rejection, not partial acceptance.
+\end{enumerate}
+
+\subsection{Secrets and credentials}
+Secrets are not audit evidence. Do not place API keys, bearer tokens, private keys, or raw credentials in audit events, PO bundles, replay fixtures, or lineage annotations. Record key ids, signature ids, public-key fingerprints, and verification results instead.
+
+\begin{rulebox}
+If a replay needs a secret, the design is wrong. Replay may need a signed statement that a secret-backed service produced a value, but not the secret itself.
+\end{rulebox}
+
+\subsection{Abuse cases to test}
+\begin{itemize}
+\item Oversized event that attempts to exhaust canonicalization memory.
+\item Event with duplicate semantic fields in different encodings.
+\item Bundle that reuses a valid witness from a different step id.
+\item Descriptor downgrade to an older checker version.
+\item Recovery event without authorized signature.
+\item Stutter claim that hides behavior change behind bookkeeping.
+\item Memory compression that deletes proof-relevant evidence.
+\end{itemize}
+
+
+\section{Memory and Lineage}
+Memory can be compressed. Lineage cannot disappear.
+
+\subsection{Content-addressed memory}
+Use roots. Do not copy whole memory into every state.
+
+\begin{lstlisting}[language=Python,caption={Memory operation witness.}]
+@dataclass(frozen=True)
+class MemoryWitness:
+    prev_root: str
+    next_root: str
+    operation: str          # retain, compress, summarize, migrate, forget
+    deterministic: bool
+    lineage_extended: bool
+    audit_reconstructible: bool
+    entropy_claim: str | None
+\end{lstlisting}
+
+\subsection{Lawful compression}
+A compression operation is lawful only when it preserves the evidence required by the constitution. A shorter summary is not automatically lawful.
+
+\begin{warnbox}
+The dangerous compression is the one that destroys the evidence needed to prove it was lawful.
+\end{warnbox}
+
+\subsection{Lineage operations}
+Allowed lineage operations:
+\begin{itemize}
+\item extend;
+\item annotate;
+\item branch with attribution;
+\item cryptographically commit;
+\item summarize with reconstruction evidence.
+\end{itemize}
+
+Forbidden lineage operations:
+\begin{itemize}
+\item erase;
+\item silently overwrite;
+\item truncate ancestry;
+\item merge histories without provenance;
+\item compress beyond audit.
+\end{itemize}
+
+\section{Audit and Replay}
+Audit is not telemetry. Audit is the reconstruction path.
+
+\subsection{Audit event}
+\begin{lstlisting}[caption={Audit event shape.}]
+{
+  "schema": "scc.audit.v1",
+  "step_id": "2026-04-29T12:00:00Z:node-a:000001",
+  "prev_audit_hash": "...",
+  "event_hash": "...",
+  "prev_state_hash": "...",
+  "next_state_hash": "...",
+  "po_hash": "...",
+  "mode": "Exact",
+  "checker_version": "scc-checker-0.1.0",
+  "build_id": "build:abc123",
+  "descriptor_id": "theta:prod-a"
+}
+\end{lstlisting}
+
+\subsection{Replay harness}
+\begin{lstlisting}[language=Python,caption={Replay harness.}]
+def replay(initial_state, recorded_events, env):
+    state = initial_state
+    produced = []
+    for event in recorded_events:
+        state_next, witnesses = seven_stage_transition(state, event, env)
+        po = build_bundle(state, event, state_next, witnesses, env)
+        if not accepts_bundle(po, state, state_next, env):
+            raise ReplayFailure(event["step_id"])
+        produced.append((state_next, po))
+        state = state_next
+    return produced
+\end{lstlisting}
+
+\subsection{Replay requirements}
+\begin{itemize}
+\item Same initial state.
+\item Same event bytes.
+\item Same build id.
+\item Same numerical mode.
+\item Same execution descriptor.
+\item Same checker version or a declared migration proof.
+\end{itemize}
+
+\begin{shipbox}
+A production release needs at least one replay test for every critical scenario: normal step, rejected step, halt, stutter, safe refinement, memory compression, governance update, and recovery meta-path.
+\end{shipbox}
+
+
+
+\section{Storage, Transactions, and Concurrency}
+The audit chain only means something when it is committed with the state it describes. Treat storage as part of the compliance boundary.
+
+\subsection{Atomic commit rule}
+The accepted state, PO bundle, and audit event must commit together. The output must wait until that commit succeeds.
+
+\begin{lstlisting}[language=Python,caption={Atomic accepted-step commit.}]
+def commit_accepted_step(store, candidate_state, po, output_ref):
+    po_hash = hash_bundle(po)
+    with store.transaction() as tx:
+        tx.insert_state(po.next_state_hash, candidate_state)
+        tx.insert_bundle(po_hash, po)
+        tx.insert_audit_event(po.audit_event)
+        tx.compare_and_swap_head(
+            expected_prev=po.prev_state_hash,
+            next_state=po.next_state_hash,
+            next_audit=po.audit_event["next_audit_hash"],
+        )
+        tx.insert_output_ref(po.step_id, output_ref)
+    return po_hash
+\end{lstlisting}
+
+\begin{rulebox}
+No accepted output may be emitted from an uncommitted candidate. If commit fails, the output is rejected even when the checker accepted the bundle.
+\end{rulebox}
+
+\subsection{Idempotency and duplicate steps}
+\begin{tabularx}{\linewidth}{@{}p{0.30\linewidth}Y@{}}
+\toprule
+\textbf{Case} & \textbf{Behavior} \\
+\midrule
+Same \code{step_id}, same event hash, same PO hash & Return the committed result. This is a retry. \\
+Same \code{step_id}, different event hash & Reject and alert. This is an identity collision or tampering attempt. \\
+Same event hash, different step id & Accept only if the descriptor allows replayed input. Otherwise reject. \\
+Commit after checker version changed & Reject unless descriptor declares a migration proof. \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Concurrency model}
+Start with one writer per lineage head. If multiple writers are required, use compare-and-swap on the head hash and replay losing candidates against the new head.
+
+\begin{enumerate}
+\item Read current head state hash.
+\item Build candidate from that exact head.
+\item Build and check PO bundle.
+\item Compare-and-swap the head from old hash to next hash.
+\item If the swap fails, discard the candidate and retry from the new head.
+\end{enumerate}
+
+\subsection{Crash recovery}
+On boot, the runtime verifies the audit chain from the last trusted checkpoint to the current head. Any orphaned state, bundle, or output reference is quarantined until a replay repair process classifies it.
+
+\begin{shipbox}
+A storage implementation is not hardened until a forced-crash test proves that no output can exist without a committed audit event and no audit event can point to a missing state.
+\end{shipbox}
+
+
+\section{Refinement, Stuttering, and \texorpdfstring{\(\rho\)}{rho} vs. \texorpdfstring{\(\rho_b\)}{rhob}}
+The full abstraction \(\rho\) is for accountability. The normalized projection \(\rho_b\) is for behavioral simulation.
+
+\subsection{Why this matters}
+A bookkeeping step can update audit hash and lineage while leaving behavior unchanged. Under \(\rho\), the state changed. Under \(\rho_b\), the behavior may be unchanged. That is why SCC separates the two maps.
+
+\subsection{Step mode classifier}
+\begin{lstlisting}[language=Python,caption={Step classification.}]
+def classify_step(prev_impl, next_impl, abstract_next, env) -> StepMode | None:
+    prev_norm = rho_b(prev_impl)
+    next_norm = rho_b(next_impl)
+    abs_norm = project_abstract(abstract_next)
+
+    exact = next_norm == abs_norm
+    stutter = next_norm == prev_norm
+    safe_refined = safer_or_equal(next_norm, abs_norm, env.safe_order)
+
+    modes = [exact, stutter, safe_refined]
+    if sum(bool(x) for x in modes) != 1:
+        return None
+    if exact:
+        return StepMode.EXACT
+    if stutter:
+        return StepMode.STUTTER
+    return StepMode.SAFE_REFINED
+\end{lstlisting}
+
+\subsection{Decision tree}
+\begin{enumerate}
+\item Does normalized successor equal the induced abstract successor? Classify as Exact.
+\item Else, does normalized successor equal normalized predecessor? Classify as Stutter.
+\item Else, is normalized successor safer than the abstract successor under the declared preorder? Classify as SafeRefined.
+\item Else, reject the step.
+\item If more than one mode applies, reject until the model makes precedence explicit.
+\end{enumerate}
+
+\begin{warnbox}
+Do not define stuttering on the full abstraction map. That freezes audit and lineage, which is wrong. Define behavioral stuttering on \(\rho_b\).
+\end{warnbox}
+
+\section{Federation and Quorum Safety}
+Federation is not a day-one feature. Add it after the single-node kernel is solid.
+
+\subsection{Federation prerequisites}
+\begin{itemize}
+\item Authenticated signatures.
+\item Decision-instance ids.
+\item One-signature-per-instance rule for honest nodes.
+\item Quorum size and fault bound.
+\item Cross-shard lineage propagation.
+\item Halt propagation protocol.
+\item Treaty and hard-clause propagation rules.
+\end{itemize}
+
+\subsection{Certificate check}
+\begin{lstlisting}[language=Python,caption={Quorum certificate check sketch.}]
+def verify_certificate(cert, instance_id, public_keys, quorum_size):
+    if cert.instance_id != instance_id:
+        return False
+    signers = set()
+    for sig in cert.signatures:
+        if sig.signer in signers:
+            return False
+        if not verify_signature(public_keys[sig.signer], cert.value, sig):
+            return False
+        signers.add(sig.signer)
+    return len(signers) >= quorum_size
+\end{lstlisting}
+
+\subsection{Federation warnings}
+\begin{itemize}
+\item Quorum safety is not liveness.
+\item Authentication is not optional.
+\item Cross-shard lineage must be monotone.
+\item Local refinement is not automatically global refinement.
+\item Halt propagation must be bounded and explicit.
+\end{itemize}
+
+\section{Deployment Readiness}
+Do not call a deployment SCC-compliant unless these exist.
+
+\begin{longtable}{@{}p{0.36\linewidth}p{0.54\linewidth}@{}}
+\toprule
+\textbf{Artifact} & \textbf{Minimum acceptance test} \\
+\midrule
+Execution descriptor & Declares build id, task mode, numerical mode, authority stream, and active constitution. \\
+Hard-clause registry & Machine-readable active clauses with versioning and tests. \\
+State schema & All coordinates typed, serialized, and hashable. \\
+Canonical event spec & Equivalent events produce identical bytes across machines. \\
+PO schema & Required fields and witness refs are documented and validated. \\
+Checker & Rejects malformed, contradictory, stale, or incomplete bundles. \\
+Audit chain & Hash chain verifies from genesis to current state. \\
+Replay harness & Reproduces critical traces deterministically. \\
+Lineage tools & Ancestry can be reconstructed without privileged oral history. \\
+Halt and recovery & Halt is absorbing; recovery path is explicit and auditable. \\
+TCB ledger & Lists checker, serializer, crypto, runtime, compiler, storage, and network assumptions. \\
+Stress report & Includes negative tests, not only happy-path demonstrations. \\
+\bottomrule
+\end{longtable}
+
+\begin{shipbox}
+Production readiness requires evidence. A working demo is not evidence by itself.
+\end{shipbox}
+
+
+
+\section{Observability, Operations, and Incident Response}
+Telemetry helps operators see the runtime. It does not replace audit, witnesses, or proof obligations.
+
+\subsection{Operational metrics}
+\begin{longtable}{@{}p{0.34\linewidth}p{0.30\linewidth}p{0.26\linewidth}@{}}
+\toprule
+\textbf{Metric} & \textbf{Meaning} & \textbf{Alert when} \\
+\midrule
+\code{scc_checker_reject_total} & Count of rejected PO bundles. & Sudden spike or repeated same reason. \\
+\code{scc_halt_total} & Entries into failure mode 3. & Any production halt. \\
+\code{scc_audit_gap_total} & Audit chain verification gaps. & Greater than zero. \\
+\code{scc_replay_failure_total} & Recorded traces that do not replay. & Greater than zero after release. \\
+\code{scc_lineage_gap_total} & Missing or non-reconstructible ancestry. & Greater than zero. \\
+\code{scc_po_build_seconds} & Bundle construction latency. & Exceeds budget and causes queueing. \\
+\code{scc_checker_seconds} & Checker latency. & Exceeds hot-path budget. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Logs vs. audit}
+\begin{tabularx}{\linewidth}{@{}p{0.24\linewidth}Y@{}}
+\toprule
+\textbf{Record type} & \textbf{Use} \\
+\midrule
+Audit event & Reconstructs accepted state transition and verifies hash chain. \\
+PO bundle & Provides machine-checkable step evidence. \\
+Witness & Supplies typed, minimal evidence to the checker. \\
+Telemetry log & Helps humans debug performance and operations. Not legal evidence by itself. \\
+Incident note & Explains operator decisions during halt, recovery, or rollback. \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Runbook: checker unavailable}
+\begin{enumerate}
+\item Stop ordinary output emission.
+\item Enter halt or rejection path according to the constitution.
+\item Record a canonical incident event.
+\item Verify checker binary, config, descriptor, and schema registry.
+\item Replay the last accepted trace from the latest checkpoint.
+\item Resume only through an authorized recovery path.
+\end{enumerate}
+
+\subsection{Runbook: audit mismatch}
+\begin{enumerate}
+\item Freeze the affected lineage head.
+\item Compare state hash, event hash, PO hash, and audit hash against the last signed checkpoint.
+\item Quarantine orphaned records.
+\item Replay from the last trusted checkpoint.
+\item Record repair or remain halted. Do not patch the hash chain by hand.
+\end{enumerate}
+
+\subsection{Incident record}
+Every production halt should produce an incident record with the step id, descriptor id, checker version, previous state hash, observed failure, operator, recovery authority, replay result, and final disposition.
+
+
+\section{Performance Guide}
+SCC adds overhead. That is not a bug. The goal is to know where the overhead is and keep it lawful.
+
+\subsection{Hot-path costs}
+\begin{itemize}
+\item Canonical serialization.
+\item Hash updates.
+\item Bundle construction.
+\item Checker evaluation.
+\item Drift measurement.
+\item Lineage writes.
+\item Replay-safe storage commits.
+\end{itemize}
+
+\subsection{Safe optimizations}
+\begin{longtable}{@{}p{0.27\linewidth}p{0.33\linewidth}p{0.30\linewidth}@{}}
+\toprule
+\textbf{Optimization} & \textbf{Allowed when} & \textbf{Danger} \\
+\midrule
+Incremental hashing & Hash domains and segment boundaries are explicit. & Accidentally changing audit semantics. \\
+Content-addressed memory & Roots preserve reconstruction paths. & Losing evidence behind a summary. \\
+Batch verification & No accepted output depends on unchecked critical fields. & Letting illegal steps run before rejection. \\
+Sparse vector clocks & Missing entries have a canonical zero rule. & Divergent interpretations across nodes. \\
+Precomputed witnesses & Inputs, build id, and descriptor are pinned. & Reusing stale evidence. \\
+Async cold-path analysis & Hard clauses are still checked synchronously. & Moving legality out of the hot path. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Do not optimize these away}
+\begin{itemize}
+\item Protected-coordinate check.
+\item Hard-clause check.
+\item PO checker gate.
+\item Audit hash update.
+\item Halt absorption.
+\item Event canonicalization.
+\end{itemize}
+
+\begin{warnbox}
+The fastest illegal path is still illegal. Performance does not weaken a hard clause.
+\end{warnbox}
+
+
+
+\section{CI/CD and Release Gates}
+A hardened SCC repository rejects unsafe changes before they reach production. The release process is part of the runtime story.
+
+\subsection{Pre-merge gates}
+\begin{enumerate}
+\item Schema validation and golden-vector checks.
+\item Unit tests for serializers, hash domains, and state invariants.
+\item Negative corpus tests against the checker.
+\item Replay determinism tests for all critical traces.
+\item Static check that checker code has no forbidden imports.
+\item TCB ledger diff review when trusted dependencies change.
+\item Documentation check for descriptor, runbook, and migration notes.
+\end{enumerate}
+
+\subsection{Release manifest}
+Every release should produce a signed manifest.
+
+\begin{lstlisting}[caption={Release manifest shape.}]
+schema: scc.release_manifest.v1
+release_id: scc-runtime-0.1.0
+build_id: build:abc123
+source_commit: git:...
+checker_version: scc-checker-0.1.0
+state_schema: scc.state.v1
+event_schema: scc.event.v1
+po_schema: scc.po.v1
+audit_schema: scc.audit.v1
+numerical_mode: deterministic-fp-v1
+negative_corpus_hash: ...
+replay_suite_hash: ...
+tcb_ledger_hash: ...
+\end{lstlisting}
+
+\subsection{CI sketch}
+\begin{lstlisting}[caption={CI gate sketch.}]
+name: scc-kernel-gates
+on: [push, pull_request]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python -m unittest discover -s tests -v
+      - run: make replay
+      - run: make verify
+      - run: python tools/check_forbidden_imports.py src/scc_kernel/checker.py
+\end{lstlisting}
+
+\subsection{Release rejection rules}
+Reject a release when any of these is true.
+
+\begin{itemize}
+\item A replay fixture changed without a declared reason.
+\item The checker version changed without negative corpus review.
+\item The descriptor references a schema not present in the registry.
+\item The TCB ledger changed without owner approval.
+\item Audit and state commit are no longer atomic.
+\item A production path can emit output before accepted commit.
+\end{itemize}
+
+
+\section{Test Harness}
+A serious SCC implementation needs hostile tests. Friendly tests are not enough.
+
+\subsection{Minimum negative corpus}
+\begin{itemize}
+\item Missing PO field.
+\item Contradictory PO mode.
+\item Invalid governance simplex.
+\item Protected-coordinate mutation.
+\item Risk threshold crossed without halt.
+\item Audit hash mismatch.
+\item Non-canonical event encoding.
+\item Lineage erasure.
+\item Stutter that changes behavior.
+\item SafeRefined claim without safer-direction witness.
+\item Quorum certificate with duplicate signer.
+\item Replay under wrong build id.
+\end{itemize}
+
+\subsection{Property test examples}
+\begin{lstlisting}[language=Python,caption={Property-style tests.}]
+def test_halt_absorption(prev_state, env):
+    halted = replace(prev_state, failure_mode=3)
+    nxt, witnesses = seven_stage_transition(halted, benign_event(), env)
+    po = build_bundle(halted, benign_event(), nxt, witnesses, env)
+    assert accepts_bundle(po, halted, nxt, env)
+    assert nxt.failure_mode == 3
+
+def test_protected_coordinate_cannot_change(prev_state, env):
+    malicious = replace(prev_state, protected_root="evil")
+    po = fake_bundle_claiming_ok(prev_state, malicious)
+    assert not accepts_bundle(po, prev_state, malicious, env)
+
+def test_replay_is_deterministic(trace, env):
+    run1 = replay(trace.initial_state, trace.events, env)
+    run2 = replay(trace.initial_state, trace.events, env)
+    assert [po.next_state_hash for _, po in run1] == [po.next_state_hash for _, po in run2]
+\end{lstlisting}
+
+\subsection{Stress scenarios}
+\begin{enumerate}
+\item Self-modification attempt.
+\item Governance capture attempt.
+\item Memory compression under audit pressure.
+\item Shard-coupling drift spike.
+\item Replayed event with modified bytes.
+\item Recovery attempt from halt without authority.
+\item Federation conflict certificate.
+\item Stuttering abuse: bookkeeping step hides behavior change.
+\end{enumerate}
+
+\section{Decision Trees}
+Use these as code-review checklists.
+
+\subsection{Incoming step}
+\begin{enumerate}
+\item Is the raw input converted to a canonical event? If no, reject.
+\item Is the current state admissible? If no, halt or recover through meta-path.
+\item Are hard clauses active and readable by the runtime? If no, halt.
+\item Does the seven-stage transition produce a candidate state? If no, reject.
+\item Does the PO bundle cover every required field? If no, reject.
+\item Does the checker accept? If no, reject or halt.
+\item Is audit committed atomically with the accepted state? If no, reject.
+\item Emit output only after acceptance.
+\end{enumerate}
+
+\subsection{Memory operation}
+\begin{enumerate}
+\item Is the operation typed? If no, reject.
+\item Does it preserve lineage? If no, reject.
+\item Can audit reconstruct lawfulness? If no, reject.
+\item Does it alter protected state? If yes, require authorized override.
+\item Does it update memory root and audit event canonically? If no, reject.
+\end{enumerate}
+
+\subsection{Governance update}
+\begin{enumerate}
+\item Is the proposal source legitimate? If no, use fallback identity update.
+\item Is the update projected into the simplex? If no, reject.
+\item Is drift bounded and recorded? If no, reject.
+\item Are hard clauses preserved? If no, reject.
+\end{enumerate}
+
+\subsection{Recovery from halt}
+\begin{enumerate}
+\item Is current mode 3? If no, ordinary execution may continue.
+\item Is there an authorized recovery meta-path? If no, remain halted.
+\item Is the recovery event canonical and signed? If no, remain halted.
+\item Does recovery preserve lineage and audit? If no, remain halted.
+\item Does the checker accept the recovery bundle? If no, remain halted.
+\end{enumerate}
+
+\section{Mechanization Priorities}
+The practical priority is not to formalize everything at once. Formalize the pieces that carry the compliance story.
+
+\begin{enumerate}
+\item PO bundle as a typed record.
+\item Checker soundness.
+\item Step mode exclusivity.
+\item Halt absorption.
+\item Protected-coordinate non-interference.
+\item Replay determinism.
+\item Pointwise trace compliance.
+\item Quorum safety, after the single-node proofs are stable.
+\end{enumerate}
+
+\begin{shipbox}
+The highest-value mechanization target is checker soundness. Without it, accepted runtime booleans do not automatically become mathematical predicates.
+\end{shipbox}
+
+\section{Code Review Questions}
+Ask these in every review.
+
+\begin{enumerate}
+\item Can this path emit output without a checked PO bundle?
+\item Can ordinary code change protected state?
+\item Can a failed checker be ignored?
+\item Can audit and state commit separately?
+\item Can replay depend on a live service?
+\item Can a governance update skip projection?
+\item Can a halted state resume through ordinary execution?
+\item Can two step modes hold at once?
+\item Can lineage be overwritten by migration?
+\item Can a performance optimization weaken a hard clause?
+\end{enumerate}
+
+If the answer is yes, the code is not ready.
+
+\section{Common Bad Patterns}
+\begin{longtable}{@{}p{0.30\linewidth}p{0.30\linewidth}p{0.30\linewidth}@{}}
+\toprule
+\textbf{Bad pattern} & \textbf{Why it fails} & \textbf{Fix} \\
+\midrule
+Policy prompt as constitution & Prompts are not typed transition law. & Put hard clauses in a machine-readable registry. \\
+Log-only compliance & Logs do not enforce. & Build PO bundles and a checker. \\
+Best-effort audit & Audit gaps break replay. & Commit audit atomically with state. \\
+Magic safety score & Scores do not prove legality. & Map score to explicit risk law and halt thresholds. \\
+Mutable protected state & Sovereignty membrane is gone. & Gate protected updates through authorized meta-paths. \\
+Unversioned schemas & Replay and review become unstable. & Version every state, event, PO, and checker schema. \\
+Async hard-clause checks & Illegal output may already escape. & Keep hard checks synchronous. \\
+Federation first & Distributed complexity hides kernel bugs. & Harden single-node SCC first. \\
+\bottomrule
+\end{longtable}
+
+
+
+\section{Builder Deliverables}
+This section converts the handbook into concrete engineering deliverables.
+
+\subsection{Minimum repository deliverables}
+\begin{longtable}{@{}p{0.32\linewidth}p{0.58\linewidth}@{}}
+\toprule
+\textbf{Deliverable} & \textbf{Acceptance condition} \\
+\midrule
+\code{src/scc_kernel/state.py} & Immutable state record, canonical serializer, state hash golden vector. \\
+\code{src/scc_kernel/events.py} & Canonical event envelope and event hash golden vector. \\
+\code{src/scc_kernel/po.py} & Typed PO bundle and bundle hash. \\
+\code{src/scc_kernel/checker.py} & Deterministic fail-closed checker with negative tests. \\
+\code{src/scc_kernel/runtime.py} & StepResult output gate and no output before commit. \\
+\code{src/scc_kernel/store.py} & Atomic accepted-step commit and idempotency checks. \\
+\code{src/scc_kernel/replay.py} & Deterministic replay from fixtures. \\
+\code{tests/test_negative_corpus.py} & Covers protected mutation, audit mismatch, stale checker, invalid simplex, and bad mode. \\
+\code{docs/tcb_ledger.md} & Lists trusted dependencies, owners, versions, and test evidence. \\
+\code{docs/runbook.md} & Covers checker outage, audit mismatch, halt, and recovery. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Pull request checklist}
+\begin{enumerate}
+\item Does this change alter a schema, hash domain, descriptor, checker, or serializer?
+\item If yes, did the release manifest and TCB ledger change?
+\item Did new behavior add a replay fixture?
+\item Did new rejection logic add a negative test?
+\item Can any path emit output before PO acceptance and storage commit?
+\item Can this path read live time, randomness, environment, or network in replay-sensitive code?
+\item Does this change preserve protected-coordinate isolation?
+\end{enumerate}
+
+\subsection{Review posture}
+Review the SCC kernel like a small security-critical database and verifier, not like ordinary application glue. Simplicity is a feature. The best kernel code is plain enough that a tired reviewer can see the failure path.
+
+
+\section{Implementation Skeleton}
+This is a compact map of the files a first reference implementation should contain.
+
+\begin{lstlisting}[caption={Reference implementation layout.}]
+scc_kernel/
+  state.py              # SCCState, hashes, serializers
+  constitution.py       # hard clauses and active clause registry
+  events.py             # canonical event encoding
+  audit.py              # audit event and hash chain
+  po.py                 # POBundle schema
+  checker.py            # fail-closed checker
+  transition.py         # seven-stage transition
+  governance.py         # simplex projection and legitimacy gate
+  risk.py               # risk update, escalation, halt
+  memory.py             # memory operations and lineage witnesses
+  refinement.py         # rho, rho_b, step classification
+  replay.py             # deterministic replay harness
+  tests/
+    test_negative_corpus.py
+    test_replay.py
+    test_halt.py
+    test_protected_state.py
+    test_governance.py
+  docs/
+    tcb_ledger.md
+    deployment_descriptor.yaml
+    hard_clauses.yaml
+\end{lstlisting}
+
+\subsection{Descriptor example}
+\begin{lstlisting}[caption={Execution descriptor example.}]
+schema: scc.descriptor.v1
+build_id: build:abc123
+numerical_mode: deterministic-fp-v1
+task_mode: production-agent
+checker_version: scc-checker-0.1.0
+active_constitution: scc-constitution-2026-04-26
+hard_clause_set: hard-clauses:v1
+audit_hash_domain: SCC-AUDIT-V1
+po_schema: scc.po.v1
+risk_model: risk:v1
+governance_model: governance:v1
+replay_required: true
+\end{lstlisting}
+
+\section{Glossary}
+\begin{longtable}{@{}p{0.24\linewidth}p{0.66\linewidth}@{}}
+\toprule
+\textbf{Term} & \textbf{Engineering meaning} \\
+\midrule
+SCC & Constitutional-operational kernel for lawful cognitive-state transitions. \\
+Hard clause & Rule that ordinary execution cannot weaken or bypass. \\
+Protected coordinate & State coordinate that ordinary operation cannot mutate. \\
+PO bundle & Machine-checkable witness record for a step. \\
+Checker & Deterministic gate that accepts or rejects a bundle. \\
+Audit hash & Canonical hash chain over accepted events and state changes. \\
+Lineage & Reconstructible ancestry of state, memory, and governance. \\
+\(\rho\) & Full abstraction map for accountability. \\
+\(\rho_b\) & Normalized projection for behavioral stuttering and simulation. \\
+Stutter & Implementation step with unchanged normalized behavior but possibly advanced audit or lineage. \\
+SafeRefined & Implementation successor that is safer than the ordinary abstract successor under the declared preorder. \\
+Halt absorption & Once mode 3 is entered, ordinary execution cannot silently leave it. \\
+Execution descriptor & Versioned declaration of build id, schema ids, checker version, numerical mode, active constitution, and runtime assumptions. \\
+Release manifest & Signed release record tying source commit, schemas, checker, replay suite, negative corpus, and TCB ledger together. \\
+Atomic commit & Storage rule requiring state, PO bundle, audit event, and output reference to commit as one accepted step. \\
+TCB & Trusted computing base: checker, serializer, crypto, runtime, compiler, storage, and assumptions. \\
+\bottomrule
+\end{longtable}
+
+
+
+\section{Hardening Changelog}
+This hardened builder edition adds engineering material intended to make the handbook easier to implement and review.
+
+\begin{itemize}
+\item Added a builder quickstart with repository layout, make targets, and first runnable slice.
+\item Added runtime boundary and TCB hardening guidance.
+\item Added schema, versioning, migration, and compatibility rules.
+\item Added atomic storage, idempotency, concurrency, and crash-recovery rules.
+\item Added security and abuse-hardening threat model.
+\item Added observability, runbooks, incident records, and production metrics.
+\item Added CI/CD gates, release manifest shape, and release rejection rules.
+\item Added builder deliverables and pull request checklist.
+\item Added Kernel Fortress handoff protocol: reviewer-ready artifact contents, fixture-to-gate discipline, release evidence rule, and paper-facing wording.
+\item Added mechanization, federation, numerical-stability, and one-page navigation hardening rules for the Kernel Fortress handoff.
+\end{itemize}
+
+
+
+\section{Kernel Fortress Handoff Protocol}
+Kernel Fortress is the review-grade executable boundary for a minimal SCC kernel. A builder should be able to hand a reviewer a package that runs without product services, accepts golden transitions, rejects named violations, and exposes the trusted computing base. This section is the handoff checklist between the handbook and the artifact.
+
+\begin{shipbox}
+A Kernel Fortress handoff is complete only when a reviewer can run the release gate, inspect every fixture, and see which canon article each gate implements. A README is not evidence. A transcript without source is not evidence. A source tree without committed fixtures is not evidence. The package needs all three.
+\end{shipbox}
+
+\subsection{Reviewer-ready artifact contents}
+\begin{longtable}{@{}p{0.25\linewidth}p{0.32\linewidth}p{0.32\linewidth}@{}}
+\toprule
+\textbf{Artifact} & \textbf{Builder-ready condition} & \textbf{Reviewer question it answers} \\
+\midrule
+Source-of-truth checker & Small deterministic gate, no product logic, no network, no clocks, no randomness. & What exact predicate accepts or rejects the transition? \\
+Reference checker & Independent or simpler implementation for audit and differential inspection. & Does another implementation agree on the committed corpus? \\
+Golden vectors & Exact, Stutter, and SafeRefined accepted fixtures in canonical byte form. & What lawful behavior is accepted? \\
+Negative corpus & Named first-failure fixtures for missing evidence, audit corruption, protected mutation, halt escape, governance corruption, risk violation, lineage erasure, and wrong step mode. & Are failures executable fixtures or merely illustrative examples? \\
+Schemas and descriptors & Versioned carrier schemas and execution descriptor. & Which runtime assumptions and schema versions govern the decision? \\
+TCB ledger & Checker, serializer, crypto, compiler/runtime, storage, and external assumptions named. & What must be trusted for the evidence to mean anything? \\
+Release script & One command that runs vector validation, TCB import scan, source checker tests, reference tests, and manifests. & Can the reviewer reproduce the claim without asking the authors? \\
+CI evidence & Transcript generated by the same release script on a clean runner. & Did the release gate actually execute? \\
+\bottomrule
+\end{longtable}
+
+\subsection{Fixture-to-gate discipline}
+A case-study table in a paper is not enough. Each row that describes an agent-loop failure should point to a committed fixture. The expected first-failure gate is part of the contract. If a later checker rejects the same fixture at a different first-failure gate, that is a regression unless the manifest and paper explicitly state why the pipeline order changed.
+
+\begin{lstlisting}[caption={Minimum negative-corpus manifest shape.}]
+{
+  "schema": "scc.negative_manifest.v1",
+  "cases": [
+    {"fixture": "missing_required_field.json",
+     "expected_gate": "missing_required_field"},
+    {"fixture": "audit_event_hash_bad.json",
+     "expected_gate": "audit_event_hash_bad"},
+    {"fixture": "risk_threshold_without_halt.json",
+     "expected_gate": "risk_threshold_without_halt"}
+  ]
+}
+\end{lstlisting}
+
+\subsection{Release evidence rule}
+\begin{rulebox}
+Do not claim a checker pass unless the checker ran. If Rust is the source-of-truth checker, a TypeScript pass is useful reference evidence but not a Rust pass. Attach the Rust-equipped CI or local transcript before making the final release claim.
+\end{rulebox}
+
+A reviewer-grade transcript should contain the environment versions, release command, golden-vector acceptance, negative-corpus first-failure results, reference-checker results, forbidden-import scan, and release manifest hash. Keep failed or unavailable commands in the transcript. Evidence discipline is stronger than optimism.
+
+\subsection{Paper-facing wording}
+When writing about Kernel Fortress, keep the hierarchy clear:
+\begin{itemize}
+  \item Canon equals formal authority and claim boundary.
+  \item Handbook equals builder discipline and handoff checklist.
+  \item Kernel Fortress equals executable evidence for the implemented subset.
+\end{itemize}
+
+Use ``executable boundary artifact'' in the abstract. Save ``proof-of-boundary'' for the conclusion or final engineering position. This prevents reviewers from reading the artifact as an overbroad proof of safety.
+
+
+\section{Mechanization, Federation, Numerical Stability, and Overview Handoff}
+This section closes the four remaining handoff gaps that make a Kernel Fortress package feel fully reviewable rather than merely well documented.
+
+\begin{shipbox}
+A 10/10 handoff contains executable evidence, proof-boundary evidence, distributed-boundary evidence, numerical-boundary evidence, and a one-page navigation map. Missing any one of these does not invalidate the kernel, but it weakens reviewer trust.
+\end{shipbox}
+
+\subsection{Mechanization handoff}
+A builder should not say ``mechanized'' when the artifact only contains prose. A mechanization handoff has files, theorem anchors, a manifest, and a proof-gate command.
+
+\begin{longtable}{@{}p{0.26\linewidth}p{0.36\linewidth}p{0.27\linewidth}@{}}
+\toprule
+\textbf{Mechanization item} & \textbf{Required condition} & \textbf{Do not claim} \\
+\midrule
+Lean/Coq bridge & Contains no \code{sorry}, \code{admit}, \code{Admitted}, or unledgered \code{axiom}. & Full canon proof. \\
+Bool-to-Prop bridge & Accepted v1 micro-gate implies Prop-level implemented obligations. & Rust equivalence unless proved. \\
+Seven-stage witnesses & Stage witness record has a Prop-level completeness theorem. & Semantic harmlessness. \\
+Formal gate & \code{bash scripts/run_formal_gates.sh} runs on a proof-equipped runner. & Local proof pass if Lean/Coq did not run. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Memory and lineage under compression}
+Compression is lawful only if lineage remains reconstructible. The stress test must repair hashes first, then test lineage. Otherwise the checker may reject for a superficial hash mismatch before reaching the lineage law.
+
+\begin{lstlisting}[caption={Compression stress rule.}]
+1. Start from a valid golden transition.
+2. Change the event to memory_compress with a deterministic compression witness.
+3. Recompute event hash, lineage root, audit event, next-state hash, and PO hashes.
+4. Assert the repaired transition accepts.
+5. Reset lineage to the previous root, repair all hashes again, and assert LineageViolation.
+\end{lstlisting}
+
+\subsection{Federation handoff}
+Do not start with federation, but do not leave it as pure prose either. Treat federation as certificates over single-node legality.
+
+\begin{longtable}{@{}p{0.25\linewidth}p{0.36\linewidth}p{0.28\linewidth}@{}}
+\toprule
+\textbf{Distributed item} & \textbf{Evidence} & \textbf{Boundary} \\
+\midrule
+Quorum certificate & Committee size \(n=3f+1\), quorum size \(q=2f+1\), signer set, state root, descriptor hash. & Signature verification remains TCB unless mechanized. \\
+Quorum intersection & Coq arithmetic proof that two quorums overlap in at least \(f+1\) nodes. & Network synchrony remains an assumption. \\
+Cross-shard lineage & Target shard binds source lineage root into its next event. & Does not prove global liveness. \\
+Halt propagation & Halt certificate must propagate within descriptor bound. & Bound depends on network model. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Numerical-stability handoff}
+Governance and risk arithmetic must be named in the TCB ledger. A descriptor must state numerical mode, maximum vector dimensions, simplex epsilon, risk threshold, and threshold margin. For production-critical deployments, prefer fixed-point arithmetic over binary floating point.
+
+\begin{rulebox}
+A checker pass without a numerical-mode declaration is incomplete evidence. A risk value within the declared tolerance of the halt threshold should be treated as halt-required unless the deployment uses a verified fixed-point mode.
+\end{rulebox}
+
+\subsection{System overview one-pager}
+Every release should include a one-page system map with this flow:
+\begin{lstlisting}[caption={System evidence flow.}]
+Canon clause -> Handbook rule -> Kernel Fortress gate -> Fixture -> Release transcript -> Reviewer claim.
+\end{lstlisting}
+The map prevents documentation sprawl. It tells reviewers which document has authority, which artifact has executable evidence, and which claims remain outside the proof.
+
+\section{Final Engineering Position}
+The scholarly canon tells reviewers what SCC means. This handbook tells builders what to do Monday morning.
+
+Build the checker. Build the PO bundle. Make every state typed. Make every event canonical. Keep audit replayable. Keep lineage reconstructible. Keep protected state protected. Keep halt absorbing. Add optimization only after legality is locked. Add federation only after the single-node kernel is boring.
+
+That is the practical core of SCC.
+
+\section{Copyright and License}
+Synthetic Cognitive Coding (SCC) - Engineering Handbook. Copyright \copyright{} 2025--2026 Ian Farquharson.
+
+This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0). Under the terms of this license, the work may be shared and adapted, provided that appropriate attribution is given, modifications are indicated, and distributed adaptations are released under the same license.
+
+License URL: \url{https://creativecommons.org/licenses/by-sa/4.0/}
+
+Official author-published editions constitute the authoritative SCC canon and companion materials when designated by the author. Earlier drafts, gists, implementation notes, and associated developmental materials remain historical and archival artifacts unless expressly designated by the author as canonical.
+
+\end{document}
