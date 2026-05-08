@@ -1,0 +1,400 @@
+\documentclass{article}
+\PassOptionsToPackage{numbers,compress}{natbib}
+\usepackage[eandd,nonanonymous]{neurips_2026}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\hypersetup{hidelinks,pdfauthor={Ian Farquharson},pdftitle={SCC Kernel Fortress: Executable Evaluation Gates for Runtime Compliance in Agentic Systems}}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{amsmath,amssymb}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible,keepspaces=true}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\SCC}{\textsc{scc}}
+\newcommand{\KF}{\textsc{SCC Kernel Fortress}}
+\newcommand{\Exact}{\ensuremath{\mathsf{Exact}}}
+\newcommand{\Stutter}{\ensuremath{\mathsf{Stutter}}}
+\newcommand{\SafeRefined}{\ensuremath{\mathsf{SafeRefined}}}
+\newcommand{\Ok}{\ensuremath{\mathsf{Ok}}}
+\newcommand{\Err}{\ensuremath{\mathsf{Err}}}
+\newcommand{\gate}[1]{\texttt{\nolinkurl{#1}}}
+\newcommand{\claimblock}[2]{%
+  \begin{center}%
+  \setlength{\fboxsep}{6pt}%
+  \fbox{\begin{minipage}{0.94\linewidth}\textbf{#1.} #2\end{minipage}}%
+  \end{center}%
+}
+
+\title{SCC Kernel Fortress: Executable Evaluation Gates for Runtime Compliance in Agentic Systems}
+
+\author{Ian Farquharson}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Stateful AI and agentic systems increasingly operate through tool-use loops, memory updates, external calls, policy constraints, recovery paths, and audit traces. These systems may emit logs, traces, policy declarations, or post-hoc explanations, but those artifacts do not by themselves verify that each runtime transition was admissible before it entered accepted execution history. We present \KF, an executable evaluation framework for runtime-compliance claims in stateful agentic systems. The framework implements a deterministic pre-acceptance checker over a previous state, candidate next state, canonical event, audit event, proof-obligation bundle, and execution descriptor. A candidate transition is accepted only when its evidence satisfies the implemented Synthetic Cognitive Coding obligations: canonical encoding agreement, audit-chain consistency, protected-coordinate isolation, governance-state validity, risk-to-halt enforcement, halt absorption, lineage continuation, and normalized \Exact/\Stutter/\SafeRefined\ step classification. The release includes a Rust source-of-truth checker, a TypeScript reference checker, committed golden vectors, binary canonical vectors, a negative corpus with named first-failure gates, property-test scaffolding, fuzz targets, a Lean/Coq formal bridge for the implemented v1 subset, federation evidence fixtures, numerical-stability bounds, a trusted computing base ledger, and CI release gates. The contribution is deliberately narrow: \KF\ does not claim general AI safety, full theorem mechanization of the entire \SCC\ canon, compiler correctness, operating-system correctness, or cryptographic soundness of SHA-256. Its claim is smaller and testable: it turns selected \SCC\ obligations into reproducible executable gates that reject named transition failures before state acceptance. As an Evaluations \& Datasets artifact, it contributes a reusable protocol, fixture corpus, and executable tool for testing transition-legality claims in stateful agentic runtimes. \KF\ is therefore the executable boundary artifact; the Full \SCC\ Canon is the formal authority it points back to.
+\end{abstract}
+
+\section{Introduction}
+Modern AI systems are moving from stateless prediction toward stateful execution. They call tools, write files, update memory, route tasks, invoke policies, generate audit records, and sometimes attempt recovery after failure. In these settings, safety cannot be evaluated only by inspecting the final output. The critical question becomes whether the system's \emph{runtime evolution} was lawful, auditable, and recoverable under the rules governing the runtime.
+
+A stateful system can fail even when its visible output looks acceptable. It may erase lineage, mutate protected memory, lower a failure mode without authorization, bypass a halt condition, corrupt an audit chain, or accept a next state without machine-checkable evidence. These are not ordinary output-quality failures. They are transition-validity failures.
+
+Most monitoring mechanisms are not designed to reject invalid transitions before acceptance. Logs can record what happened, but they do not necessarily prevent illegal state change. Prompts can declare policy, but they do not mechanically enforce legality. Schemas can validate object shape, but they do not verify audit continuity, protected-state preservation, governance bounds, risk escalation, halt absorption, or refinement correctness. Post-hoc audits can detect violations after the fact, but by then the invalid state may already have influenced later execution.
+
+\KF\ addresses this gap by treating runtime compliance as a pre-acceptance evaluation problem. Before a candidate next state can enter the accepted trajectory, it must pass a deterministic checker. If the proof-obligation bundle is absent, malformed, hash-inconsistent, audit-inconsistent, lineage-breaking, risk-invalid, halt-invalid, governance-invalid, or refinement-invalid, the transition is rejected.
+
+This paper presents \KF\ as the executable front layer of Synthetic Cognitive Coding, or \SCC. The Full \SCC\ Canon defines the broader constitutional-operational theory: typed state spaces, admissible trajectories, proof obligations, governance rules, risk and halt laws, memory and audit constraints, refinement semantics, implementation correspondence, distributed coherence, mechanization targets, and assumption boundaries \citep{scc-canon}. The Engineering Handbook translates that canon into builder-facing discipline: implement the kernel first, keep it small, treat proof-obligation bundles as central artifacts, keep the checker deterministic, separate product logic from compliance logic, harden the trusted computing base, and reject ordinary execution when the bundle fails \citep{scc-handbook}. \KF\ sits between them: it demonstrates how selected canonical obligations become deterministic runtime gates.
+
+\claimblock{Artifact Claim}{Given a previous state, candidate next state, canonical event, audit event, proof-obligation bundle, and execution descriptor, \KF\ deterministically accepts only transitions satisfying the implemented \SCC\ obligations and rejects named violation classes before state acceptance.}
+
+\claimblock{Non-Claim}{\KF\ does not prove general AI safety, full \SCC\ theorem mechanization, compiler correctness, operating-system correctness, cryptographic soundness of SHA-256, or correctness of every possible \SCC\ implementation.}
+
+\paragraph{Why this is an E\&D artifact.}
+The contribution is not a model-quality leaderboard or a new training recipe. It is a reusable evaluation protocol for a failure mode that ordinary output evaluation underspecifies: whether a stateful agent runtime can make a candidate transition legally admissible before the transition is committed. The artifact defines the evaluation unit, the accept/reject predicate, positive controls, negative controls, fixture-level first-failure expectations, and release gates. Other researchers can use the package in three ways: run the supplied checker against the committed corpus, implement an independent checker and compare first-failure behavior, or adapt the fixture protocol to audit their own stateful agent loops.
+
+\section{Operational terminology}
+The kernel preserves formal \SCC\ vocabulary, but the evaluation artifact introduces each term through the operational problem it solves. Table~\ref{tab:terms} gives the translation used throughout this paper.
+
+\begin{table}[t]
+\caption{SCC terminology as operational runtime concepts.}
+\label{tab:terms}
+\centering
+\small
+\begin{tabularx}{\linewidth}{p{0.36\linewidth}Y}
+\toprule
+Internal term & Operational phrase \\
+\midrule
+Proof-obligation bundle & Machine-checkable transition evidence \\
+Constitutional admissibility & Runtime compliance rule satisfaction \\
+Protected-coordinate isolation & Safety-critical state immutability \\
+Halt absorption & Safety stop cannot be bypassed \\
+Governance simplex & Valid bounded governance weights \\
+Lineage continuation & Execution history continuity \\
+\SafeRefined & Risk-nonincreasing safe refinement \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Evaluation protocol}
+\KF\ is submitted as an evaluation artifact because its primary contribution is not a new model, dataset, or training method. Its contribution is a reproducible mechanism for evaluating whether runtime-compliance claims are enforced by deterministic acceptance logic. The evaluation question is simple: given a claimed compliant transition, does the runtime provide enough machine-checkable evidence for that transition to be accepted?
+
+The evaluation unit is one candidate runtime transition. The checker receives six inputs and returns either acceptance or a named rejection. This is not a probability, policy score, or advisory warning; it is a deterministic acceptance predicate.
+
+\begin{figure}[t]
+\centering
+\begin{minipage}{0.82\linewidth}
+\begin{verbatim}
+Previous State
+     |
+     v
+Canonical Event ---- Candidate Next State
+     |                         |
+     +---- Proof-Obligation Bundle
+                    |
+                    v
+            SCC Kernel Fortress
+                    |
+             +------+------+
+             v             v
+          Accept     Reject(reason)
+\end{verbatim}
+\end{minipage}
+\caption{\KF\ evaluates runtime compliance before state acceptance. A candidate transition enters the accepted trajectory only if its proof-obligation bundle, canonical hashes, audit event, risk/halt behavior, lineage, and refinement classification satisfy the implemented obligations.}
+\label{fig:flow}
+\end{figure}
+
+\begin{table}[t]
+\caption{Evaluation protocol.}
+\label{tab:protocol}
+\centering
+\small
+\begin{tabularx}{\linewidth}{p{0.27\linewidth}Y}
+\toprule
+Protocol element & Definition \\
+\midrule
+Evaluation unit & One candidate state transition. \\
+Inputs & Previous state, candidate next state, canonical event, audit event, proof-obligation bundle, and execution descriptor. \\
+Decision & Accept, or reject with a named reason. \\
+Positive controls & Golden vectors for \Exact, \Stutter, and \SafeRefined\ steps. \\
+Negative controls & Named first-failure corpus for malformed or unlawful bundles. \\
+Reproducibility & Rust/TypeScript checks, committed binary vectors, forbidden-import checks, and CI gates. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Case study: runtime compliance failures in a stateful agent loop}
+A simple stateful agent loop can be represented as
+\begin{equation}
+State_t \rightarrow AgentEvent \rightarrow CandidateState_{t+1} \rightarrow POBundle \rightarrow Checker \rightarrow Accept/Reject.
+\end{equation}
+\KF\ evaluates whether the candidate transition is admissible before it becomes part of runtime history. Table~\ref{tab:case-study} maps representative agent-loop compliance failures to committed negative-corpus fixtures. Each fixture is expected to reject at the named first-failure gate; a different first-failure gate is treated as a regression.
+
+\begin{table}[t]
+\caption{Representative agent-loop failures mapped to committed negative-corpus fixtures.}
+\label{tab:case-study}
+\centering
+\footnotesize
+\begin{tabularx}{\linewidth}{p{0.20\linewidth}Yp{0.27\linewidth}p{0.24\linewidth}}
+\toprule
+Failure scenario & Runtime symptom & Committed fixture & First-failure gate \\
+\midrule
+Missing evidence & Agent proposes a state update without a valid proof-obligation bundle. & \gate{missing_required_field.json} & \gate{missing_required_field} \\
+Audit corruption & Runtime rewrites or mismatches the audit hash. & \gate{audit_event_hash_bad.json} & \gate{audit_event_hash_bad} \\
+Risk escalation & Risk threshold is crossed but the system does not halt. & \gate{risk_threshold_without_halt.json} & \gate{risk_threshold_without_halt} \\
+Halt escape & System exits halt without authorized recovery. & \gate{halt_absorption_violation.json} & \gate{halt_absorption_violation} \\
+Governance corruption & Governance weights leave the valid simplex. & \gate{invalid_simplex.json} & \gate{invalid_simplex} \\
+Lineage erasure & Runtime breaks or deletes continuation history. & \gate{lineage_erasure.json} & \gate{lineage_erasure} \\
+Protected-state mutation & Ordinary execution mutates protected coordinates. & \gate{protected_mutation.json} & \gate{protected_mutation} \\
+Refinement misclassification & Bundle declares a mode inconsistent with the checker classification. & \gate{wrong_step_mode.json} & \gate{wrong_step_mode} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The point of the case study is not that \KF\ solves every agent-safety problem. The point is that it catches a class of runtime-compliance failures that ordinary output evaluation can miss.
+
+\section{Baseline comparison}
+\KF\ is best understood by contrast with mechanisms that record, advise, or partially validate behavior but do not necessarily reject invalid transitions before state acceptance. Table~\ref{tab:baselines} is a qualitative capability comparison. It does not claim that all systems in a class lack stronger variants; it identifies which guarantees are provided by this artifact as packaged and tested.
+
+\begin{table}[t]
+\caption{Pre-acceptance enforcement compared with common monitoring mechanisms.}
+\label{tab:baselines}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\linewidth}{p{0.22\linewidth}p{0.13\linewidth}p{0.15\linewidth}p{0.17\linewidth}p{0.14\linewidth}Y}
+\toprule
+Mechanism & Records & Pre-accept reject & Checks hash/audit & Enforces halt/risk & Protects state \\
+\midrule
+Plain logs & Yes & No & No & No & No \\
+Prompt policy & Weakly & No & No & No & No \\
+JSON schema validation & Shape only & Partially & No & No & No \\
+Post-hoc audit & Yes & No & Sometimes & No & No \\
+Runtime policy wrapper & Sometimes & Sometimes & Rarely & Sometimes & Rarely \\
+\textbf{\KF} & \textbf{Yes} & \textbf{Yes} & \textbf{Yes} & \textbf{Yes} & \textbf{Yes} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The differentiator is pre-acceptance enforcement. \KF\ does not merely record that a transition occurred; it determines whether the transition may be accepted.
+
+\section{Implemented obligations and checker pipeline}
+The checker is a predicate over a previous state $s$, next state $s'$, event $e$, audit event $a$, proof-obligation bundle $p$, and execution descriptor $\Theta$:
+\begin{equation}
+\mathrm{accepts}(p,s,s',e,a,\Theta) \in \{\Ok,\Err(r)\}.
+\end{equation}
+It is pure: no wall-clock time, randomness, network calls, environment variables, mutable globals, telemetry, or product runtime decisions participate in the decision.
+
+\begin{table}[t]
+\caption{Canon-to-executable mapping.}
+\label{tab:mapping}
+\centering
+\footnotesize
+\begin{tabularx}{\linewidth}{p{0.19\linewidth}Yp{0.28\linewidth}}
+\toprule
+SCC source & Executable obligation & Negative/golden gate \\
+\midrule
+Article F9, Article C11 & Valid proof-obligation bundle or no lawful step. & \gate{missing_required_field} \\
+Article 29 & Governance vector must remain in the simplex. & \gate{invalid_simplex} \\
+Article 30 & Threshold risk must force halt. & \gate{risk_threshold_without_halt} \\
+Article 32 & Halt is absorbing unless authorized recovery applies. & \gate{halt_absorption_violation} \\
+Article 35 & Audit chain is deterministic and hash-bound. & \gate{audit_event_hash_bad} \\
+Article 36 & Lineage must continue. & \gate{lineage_erasure} \\
+Articles 52--53 & Step mode must be \Exact, \Stutter, or \SafeRefined. & Three golden modes; \gate{wrong_step_mode} \\
+Articles 73, 80 & Trusted computing base and external assumptions must be explicit. & \gate{tcb_ledger.md} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The Rust \texttt{accepts} function is the single gate. It rejects in this order: schema mismatch, checker-version mismatch, invalid mode, missing required PO field, canonical hash mismatch, domain violation, protected-coordinate mutation, halt violation, governance violation, risk violation, lineage violation, audit-chain break, and refinement violation. The order is intentional because negative corpus cases assert the first failing gate.
+
+The v1 kernel defines typed records for \texttt{SCCState}, \texttt{CanonicalEvent}, \texttt{AuditEvent}, \texttt{POBundle}, and \texttt{ExecutionEnv}. All records are serialized by domain-separated binary encoders. Strings are UTF-8 with u32 lengths, integers are big-endian, maps are key-sorted, and floating point values are finite IEEE-754 binary64 in big-endian order with negative zero normalized. JSON is a carrier format only; the committed \texttt{.bin} vectors are the byte-level contract. The audit chain avoids circularity by hashing the next state with the audit coordinate zeroed:
+\begin{equation}
+H_a = \mathrm{SHA256}(\mathrm{AuditEvent}(H_t,H(e),H(s_t),H_{body}(s_{t+1}),\Theta)).
+\end{equation}
+The checker then requires both $p.\mathrm{audit\_event\_hash}=H_a$ and $s_{t+1}.\mathrm{audit\_hash}=H_a$.
+
+\section{Step classification, governance, risk, and halt}
+The canon separates full abstraction $\rho$ from normalized simulation projection $\widehat{\rho}$ so that audit and lineage can advance during behavioral stuttering \citep{scc-canon}. The implementation follows that split. The normalized projection drops administrative audit and lineage coordinates while retaining compute root, memory root, vector clock, governance weights, failure mode, risk vector, and protected root.
+
+Given the induced exact successor $\widehat{T}(\widehat{\rho}(s),e)$, the classifier returns exactly one of:
+\begin{align}
+\Exact:&\quad \widehat{\rho}(s') = \widehat{T}(\widehat{\rho}(s),e),\\
+\Stutter:&\quad \widehat{\rho}(s') = \widehat{\rho}(s),\\
+\SafeRefined:&\quad \widehat{\rho}(s') \preceq_{safe} \widehat{T}(\widehat{\rho}(s),e).
+\end{align}
+The v1 safety preorder keeps structural coordinates stable, permits no greater total risk, and forbids lowering the failure mode. A bundle whose declared mode disagrees with the classifier is rejected.
+
+Governance weights must lie in the probability simplex. The transition helper uses the standard sort-threshold-renormalize projection family for simplex or $\ell_1$-ball constraints \citep{duchi2008projection,wang2013simplex}. The checker does not trust a projection witness blindly: it checks that the next vector lies in the simplex and that L2 drift is within the descriptor bound.
+
+Risk is executable law in v1. If $\sum_i r_i \geq \Theta.\mathrm{risk\_halt\_threshold}$, then the next failure mode must be 3. If the previous failure mode is 3 and the bundle does not invoke an authorized recovery path, the next failure mode must remain 3. Ordinary execution also cannot silently lower severity.
+
+\section{Reproducibility and release gates}
+The author-identified supplementary package contains three accepted golden modes (\Exact, \Stutter, and \SafeRefined), fourteen negative cases, JSON and binary vector forms, Rust tests, TypeScript tests, property-test scaffolding, fuzz targets, schemas, a TCB ledger, and a CI workflow. The TypeScript reference suite contains 22 tests: three golden acceptance tests, fourteen negative rejection tests, one replay determinism test, and four stress tests covering memory-compression lineage, repaired-hash lineage rejection, simplex numerical stability, and federation quorum arithmetic. The release gate is:
+\begin{lstlisting}[caption={Release gate used by local and CI validation.}]
+python tools/validate_vectors.py
+python tools/forbidden_imports.py
+cd rust && cargo test --all-features
+cd rust && cargo test --test negative_corpus
+cd rust && cargo test --test golden_vectors
+cd rust && cargo test --test proptest_invariants
+cd rust && cargo test --test memory_lineage_compression
+cd rust && cargo test --test numerical_stability
+cd rust && cargo test --test federation_quorum
+cd ts && npm test
+python tools/validate_formal_artifacts.py
+bash scripts/run_formal_gates.sh
+\end{lstlisting}
+The submitted artifact should be considered valid only when these commands, or the included CI workflow that executes the same checks on a Rust- and Node-equipped runner, complete successfully. The artifact also includes a local packaging transcript for vector validation, forbidden-import scanning, and the TypeScript reference suite. We do not use unobserved local commands as evidence; unsupported release claims must be backed by the supplied CI or by an independently reproduced local transcript.
+
+\begin{table}[h]
+\caption{Evidence tiers for reproducing the artifact claim.}
+\label{tab:evidence-tiers}
+\centering
+\footnotesize
+\begin{tabularx}{\linewidth}{p{0.18\linewidth}p{0.30\linewidth}Y}
+\toprule
+Tier & Reviewer action & Evidence produced \\
+\midrule
+Static & Inspect README, schemas, TCB ledger, fixture manifests, and checker pipeline. & Confirms artifact scope, inputs, claims, and trust boundary. \\
+Vector & Run \gate{validate_vectors.py} and inspect committed \gate{.bin} fixtures. & Confirms byte-level fixture consistency for golden and negative cases. \\
+Reference & Run the TypeScript suite under Node 22+. & Confirms 22 deterministic reference checks over golden, negative, replay, compression-lineage, numerical, and federation arithmetic cases. \\
+Authority & Run Rust release gates under a Rust-equipped runner or the included CI workflow. & Confirms source-of-truth checker behavior, negative-corpus first-failure gates, golden-vector acceptance, and property tests. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Artifact use cases}
+\label{sec:usecases}
+\KF\ is packaged for use as an executable evaluation harness, not only as a reference implementation. Table~\ref{tab:usecases} summarizes the intended reviewer and downstream use cases. Each use case is intentionally transition-level: the artifact evaluates a candidate state transition and its evidence, not the natural-language quality of a generated answer.
+
+\begin{table}[h]
+\caption{Executable artifact use cases.}
+\label{tab:usecases}
+\centering
+\footnotesize
+\begin{tabularx}{\linewidth}{p{0.24\linewidth}Yp{0.30\linewidth}}
+\toprule
+Use case & What the evaluator does & Required evidence \\
+\midrule
+Submission inspection & Run the release gate over the supplied package. & Golden modes accept; all negative fixtures reject at named first-failure gates. \\
+Runtime regression test & Add the fixture corpus to a stateful agent runtime's CI. & No transition can commit unless the checker accepts its proof-obligation bundle. \\
+Independent checker comparison & Reimplement the acceptance predicate in another language. & Decisions and first-failure gates match the committed manifests. \\
+Policy-wrapper audit & Feed proposed state transitions through \KF\ before logging or committing them. & Wrapper cannot substitute logs, prompts, or schemas for machine-checkable transition evidence. \\
+Mechanization target & Translate the Rust gate and fixture obligations into proof-assistant lemmas. & The TCB ledger and canon mapping define what must be proven versus assumed. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+\section{Mechanization, stress, federation, and numerical hardening}
+\label{sec:mech-hardening}
+This release turns the prior mechanization roadmap into a concrete bridge for the implemented v1 subset. The supplement includes a Lean 4 micro-model of the gate, a seven-stage witness formalization, and a Coq proof fragment for required-bundle reflection and quorum-intersection arithmetic. The mechanized claim is intentionally scoped: in the small formal model, acceptance implies Prop-level v1 obligations such as required bundle fields, protected-coordinate preservation, halt absorption, risk-to-halt implication, lineage continuation, and stage-witness completeness. The bridge does not prove the entire \SCC\ canon, compiler correctness, SHA-256 security, or operating-system correctness.
+
+\begin{table}[t]
+\caption{Hardening additions beyond the single-node fixture corpus.}
+\label{tab:hardening}
+\centering
+\footnotesize
+\begin{tabularx}{\linewidth}{p{0.20\linewidth}Yp{0.31\linewidth}}
+\toprule
+Area & Added evidence & Reviewer handle \\
+\midrule
+Mechanization & Lean Bool-to-Prop gate soundness, Lean seven-stage witness bridge, Coq required-bundle and quorum arithmetic proofs. & \gate{formal/}, \gate{mechanization\_manifest.json} \\
+Rust stress & Added memory-lineage compression, numerical-stability, and federation-quorum integration tests, plus a lineage fuzz target. & \gate{rust/tests/*}, \gate{rust/fuzz/*} \\
+Memory/lineage & Compression stress repairs hashes first, then tests accepted lineage continuation and semantic lineage-erasure rejection. & \gate{memory\_lineage\_compression.rs} \\
+Federation & Distributed story is a certificate layer over single-node legality: quorum certificates, cross-shard lineage binding, and bounded halt propagation. & \gate{federation/manifest.json} \\
+Numerics & TCB ledger now specifies finite binary64 encoding, negative-zero normalization, simplex tolerance, drift bounds, and near-threshold risk discipline. & \gate{docs/numerical\_stability\_tcb.md} \\
+Navigation & One-page system map reduces doc sprawl and connects Canon, Handbook, Kernel Fortress, and Builder Scaffold. & \gate{docs/SCC\_SYSTEM\_OVERVIEW\_ONE\_PAGER.md} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+These additions strengthen the artifact claim without enlarging it. The single-node checker remains the core evaluation unit. Mechanization proves the boundary in a small formal model; Rust/TypeScript stress tests increase executable coverage; federation fixtures specify distributed evidence that composes with, rather than replaces, the single-node gate; numerical rules make floating-point trust explicit in the TCB ledger.
+
+\section{Threat model, limitations, and canon bridge}
+\KF\ targets runtime-compliance failures in which a stateful system attempts to accept a transition that lacks required machine-checkable evidence, corrupts canonical hashes or audit continuity, mutates protected coordinates through ordinary execution, erases or severs lineage, crosses a risk threshold without entering halt, exits halt without authorized recovery, submits invalid governance-state updates, misdeclares its refinement mode, or depends on nondeterministic or unauthorized runtime inputs. This is an ML-evaluation contribution at the runtime layer: it evaluates transition legality in stateful agentic systems, rather than model likelihood, task score, or response preference.
+
+It does not defend against every possible system compromise. It does not prove compiler correctness, operating-system correctness, hardware correctness, cryptographic primitive security, model-objective safety, or semantic harmlessness of generated content. It does not evaluate natural-language helpfulness, truthfulness, toxicity, bias, or preference alignment. The implemented v1 subset now includes a formal bridge and proof targets, but the artifact still does not claim full mechanical proof of the entire SCC canon or of the surrounding compiler, operating system, cryptographic primitive, hardware, or deployment substrate. These limits are not footnotes; they are part of the artifact's trust boundary.
+
+\KF\ is not the whole \SCC\ system. It is the executable gate. The Full \SCC\ Canon provides the broader formal authority: state spaces, constitutional clauses, admissible domains, transition laws, proof-obligation requirements, governance and risk dynamics, audit determinism, lineage continuation, refinement semantics, implementation correspondence, distributed coherence, mechanization targets, and assumption boundaries \citep{scc-canon}. The Engineering Handbook translates that authority into builder-facing instructions for a small deterministic kernel, proof-obligation bundles, TCB hardening, replay discipline, and release gates \citep{scc-handbook}. The executable artifact makes compliance testable; the canon supplies the constitutional-operational law behind the tests.
+
+\section{Related work}
+\KF\ is adjacent to runtime verification, where monitors check properties of executions \citep{leucker2009runtime,havelund2004monitoring}, and to proof-carrying code, where consumers check explicit evidence before accepting code \citep{necula1997pcc}. Reference-monitor and security-policy work motivate a mediating enforcement point for security-relevant decisions \citep{anderson1972reference,schneider2000enforceable}. Policy-as-code systems such as Open Policy Agent/Rego decouple policy decisions from application code and express policies over structured data \citep{opa2026rego}. Secure audit-log work studies tamper-evident logging after events occur \citep{schneier1999audit}. \KF\ is complementary: it makes the transition itself carry typed evidence, canonical byte commitments, risk/halt obligations, lineage constraints, and named rejection gates before acceptance.
+
+Agent and tool-use evaluations such as AgentBench, ToolLLM/ToolBench, ToolSandbox, and ToolEmu evaluate interactive task performance, tool-use capability, or risk discovery in tool-rich environments \citep{liu2024agentbench,qin2024toolllm,lu2025toolsandbox,ruan2023toolemu}. ML safety evaluations and red-teaming frameworks study harmful outputs, refusal robustness, and adversarial prompt discovery \citep{ganguli2022redteaming,mazeika2024harmbench}. \KF\ occupies a different evaluation layer: it does not score the semantic quality of an agent's response, but checks whether the runtime transition that produced or followed that response was admissible before state acceptance.
+
+\section{Conclusion}
+\KF\ moves \SCC\ enforcement from advisory documentation into an executable proof-of-boundary. It evaluates one candidate state transition at a time, requires machine-checkable evidence, validates canonical hashes and audit continuity, enforces protected-state, governance, risk, halt, lineage, and refinement obligations, and rejects named failure classes before acceptance.
+
+The bridge to the Full \SCC\ Canon is the central contribution. \KF\ shows that selected canonical obligations can become machinery. The canon explains the law behind that machinery. Together, they make runtime compliance reviewable, reproducible, and falsifiable: A system that cannot prove the legality of its next step has no right to take it.
+
+\begin{thebibliography}{99}
+\bibitem[Farquharson(2026a)]{scc-canon}
+Ian Farquharson. \emph{Synthetic Cognitive Coding (SCC): Formal Constitutional-Operational Specification, Final Canon, Scholarly Edition}. Author-identified supplemental manuscript, 2026.
+
+\bibitem[Farquharson(2026b)]{scc-handbook}
+Ian Farquharson. \emph{Synthetic Cognitive Coding (SCC): Engineering Handbook, Hardened Builder Edition}. Author-identified supplemental manuscript, 2026.
+
+\bibitem[Anderson(1972)]{anderson1972reference}
+James P. Anderson. \emph{Computer Security Technology Planning Study}. Technical Report ESD-TR-73-51, 1972.
+
+\bibitem[Duchi et~al.(2008)Duchi, Shalev-Shwartz, Singer, and Chandra]{duchi2008projection}
+John C. Duchi, Shai Shalev-Shwartz, Yoram Singer, and Tushar Chandra. Efficient projections onto the $\ell_1$-ball for learning in high dimensions. In \emph{Proceedings of the 25th International Conference on Machine Learning}, pages 272--279, 2008.
+
+\bibitem[Ganguli et~al.(2022)]{ganguli2022redteaming}
+Deep Ganguli, Liane Lovitt, Jackson Kernion, Amanda Askell, Yuntao Bai, Saurav Kadavath, Ben Mann, Ethan Perez, Nicholas Schiefer, Kamal Ndousse, Andy Jones, Sam Bowman, Anna Chen, Tom Conerly, Nova DasSarma, Dawn Drain, Nelson Elhage, Sheer El-Showk, Stanislav Fort, Zac Hatfield-Dodds, Tom Henighan, Danny Hernandez, Tristan Hume, Josh Jacobson, Scott Johnston, Shauna Kravec, Catherine Olsson, Sam Ringer, Eli Tran-Johnson, Dario Amodei, Tom Brown, Nicholas Joseph, Sam McCandlish, Chris Olah, Jared Kaplan, and Jack Clark. Red teaming language models to reduce harms: Methods, scaling behaviors, and lessons learned. arXiv:2209.07858, 2022.
+
+\bibitem[Havelund and Rosu(2004)]{havelund2004monitoring}
+Klaus Havelund and Grigore Rosu. Efficient monitoring of safety properties. \emph{International Journal on Software Tools for Technology Transfer}, 6(2):158--173, 2004.
+
+\bibitem[Leucker and Schallhart(2009)]{leucker2009runtime}
+Martin Leucker and Christian Schallhart. A brief account of runtime verification. \emph{Journal of Logic and Algebraic Programming}, 78(5):293--303, 2009.
+
+\bibitem[Liu et~al.(2024)]{liu2024agentbench}
+Xiao Liu, Hao Yu, Hanchen Zhang, Yifan Xu, Xuanyu Lei, Hanyu Lai, Yu Gu, Hangliang Ding, Kaiwen Men, Kejuan Yang, Shudan Zhang, Xiang Deng, Aohan Zeng, Zhengxiao Du, Chenhui Zhang, Sheng Shen, Tianjun Zhang, Yu Su, Huan Sun, Minlie Huang, Yuxiao Dong, and Jie Tang. AgentBench: Evaluating LLMs as agents. In \emph{International Conference on Learning Representations}, 2024.
+
+\bibitem[Lu et~al.(2025)]{lu2025toolsandbox}
+Jiarui Lu, Thomas Holleis, Yizhe Zhang, Bernhard Aumayer, Feng Nan, Felix Bai, Shuang Ma, Shen Ma, Mengyu Li, Guoli Yin, Zirui Wang, and Ruoming Pang. ToolSandbox: A stateful, conversational, interactive evaluation benchmark for LLM tool use capabilities. arXiv:2408.04682, 2025.
+
+\bibitem[Mazeika et~al.(2024)]{mazeika2024harmbench}
+Mantas Mazeika, Long Phan, Xuwang Yin, Andy Zou, Zifan Wang, Norman Mu, Elham Sakhaee, Nathaniel Li, Steven Basart, Bo Li, David Forsyth, and Dan Hendrycks. HarmBench: A standardized evaluation framework for automated red teaming and robust refusal. In \emph{Proceedings of the 41st International Conference on Machine Learning}, 2024.
+
+\bibitem[Necula(1997)]{necula1997pcc}
+George C. Necula. Proof-carrying code. In \emph{Proceedings of the 24th ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages}, pages 106--119, 1997.
+
+\bibitem[Open Policy Agent Authors(2026)]{opa2026rego}
+Open Policy Agent Authors. Open Policy Agent documentation: Policy language and Rego. 2026. URL: \url{https://www.openpolicyagent.org/docs/policy-language}.
+
+\bibitem[Qin et~al.(2024)]{qin2024toolllm}
+Yujia Qin, Shihao Liang, Yining Ye, Kunlun Zhu, Lan Yan, Yaxi Lu, Yankai Lin, Xin Cong, Xiangru Tang, Bill Qian, Sihan Zhao, Lauren Hong, Runchu Tian, Ruobing Xie, Jie Zhou, Mark Gerstein, Dahai Li, Zhiyuan Liu, and Maosong Sun. ToolLLM: Facilitating large language models to master 16000+ real-world APIs. In \emph{International Conference on Learning Representations}, 2024.
+
+\bibitem[Ruan et~al.(2023)]{ruan2023toolemu}
+Yangjun Ruan, Honghua Dong, Andrew Wang, Silviu Pitis, Yongchao Zhou, Jimmy Ba, Yann Dubois, Chris J. Maddison, and Tatsunori Hashimoto. Identifying the risks of LM agents with an LM-emulated sandbox. arXiv:2309.15817, 2023.
+
+\bibitem[Schneier and Kelsey(1999)]{schneier1999audit}
+Bruce Schneier and John Kelsey. Secure audit logs to support computer forensics. \emph{ACM Transactions on Information and System Security}, 2(2):159--176, 1999.
+
+\bibitem[Schneider(2000)]{schneider2000enforceable}
+Fred B. Schneider. Enforceable security policies. \emph{ACM Transactions on Information and System Security}, 3(1):30--50, 2000.
+
+\bibitem[Wang and Carreira-Perpinan(2013)]{wang2013simplex}
+Weiran Wang and Miguel A. Carreira-Perpinan. Projection onto the probability simplex: An efficient algorithm with a simple proof, and an application. arXiv:1309.1541, 2013.
+\end{thebibliography}
+
+\clearpage
+\appendix
+\section{Supplementary reproducibility notes}
+The release package is intended to be evaluated as an executable artifact. The author-identified archive should contain the Rust crate, TypeScript reference checker, schemas, golden vectors, binary canonical vectors, negative corpus, TCB ledger, validation tools, Makefile, and CI workflow. The negative-corpus manifest contains fourteen cases: \gate{audit_event_hash_bad}, \gate{checker_version_mismatch}, \gate{descriptor_mismatch_audit}, \gate{event_hash_bad}, \gate{halt_absorption_violation}, \gate{invalid_simplex}, \gate{lineage_erasure}, \gate{missing_required_field}, \gate{next_hash_bad}, \gate{prev_hash_bad}, \gate{protected_mutation}, \gate{risk_threshold_without_halt}, \gate{schema_mismatch}, and \gate{wrong_step_mode}. Each case is committed as a JSON fixture and checked against its expected first-failure gate.
+
+\section{Supplementary mechanization and distributed notes}
+The supplement also contains \gate{formal/lean}, \gate{formal/coq}, \gate{mechanization\_manifest.json}, \gate{federation/}, \gate{docs/numerical\_stability\_tcb.md}, and \gate{docs/SCC\_SYSTEM\_OVERVIEW\_ONE\_PAGER.md}. The formal files are part of the evidence package; proof-assistant execution must be reported from a proof-equipped runner and must not be inferred from the static source tree alone.
+
+\input{checklist_filled}
+\end{document}
