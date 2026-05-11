@@ -36,7 +36,7 @@ jobs:
           python-version: '3.12'
       - uses: leanprover/lean-action@v1
         with:
-          working-directory: formal/lean
+          lake-package-directory: formal/lean
       - name: Install Coq
         run: sudo apt-get update && sudo apt-get install -y coq
       - name: Formal bridge gates
