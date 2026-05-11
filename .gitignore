@@ -9,6 +9,9 @@
 # Generated evidence/artifacts (local)
 /validation/
 
+# Lean local build cache
+/formal/lean/.lake/
+
 # Release artifacts (built, not source)
 /releases/
 
