@@ -1,4 +1,7 @@
 # SCC Kernel Fortress
+
+<br>
+
 <div align="center">
 
 <img src="https://github.com/IceMasterT/SCC-Formal_Constitution/actions/workflows/ci.yml/badge.svg" alt="Build Status">
