@@ -1,16 +1,17 @@
 # SCC Kernel Fortress
-
 <div align="center">
 
-![Build Status](https://github.com/IceMasterT/SCC-Formal_Constitution/actions/workflows/ci.yml/badge.svg)
-![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?logo=docker&logoColor=white)
-![License](https://img.shields.io/github/license/IceMasterT/SCC-Formal_Constitution)
-![Version](https://img.shields.io/github/v/release/IceMasterT/SCC-Formal_Constitution?label=Version)
-![Stars](https://img.shields.io/github/stars/IceMasterT/SCC-Formal_Constitution?style=social)
+<img src="https://github.com/IceMasterT/SCC-Formal_Constitution/actions/workflows/ci.yml/badge.svg" alt="Build Status">
+<img src="https://img.shields.io/badge/Docker-Enabled-2496ED?logo=docker&logoColor=white" alt="Docker">
+<img src="https://img.shields.io/github/license/IceMasterT/SCC-Formal_Constitution" alt="License">
+<img src="https://img.shields.io/github/v/release/IceMasterT/SCC-Formal_Constitution?label=Version" alt="Version">
+<img src="https://img.shields.io/github/stars/IceMasterT/SCC-Formal_Constitution?style=social" alt="Stars">
 
 </div>
 
 <br>
+
+---
 
 **SCC Kernel Fortress** is an executable evaluation artifact for **runtime-compliance claims in stateful agentic systems**. It checks one candidate transition at a time and returns either acceptance or a named rejection gate. The artifact is intentionally narrow, reproducible, and evidence-first: a transition is not accepted because a model, log, prompt, runtime trace, or explanation says it is acceptable; it is accepted only when the committed state, event, audit, proof-obligation, and execution-descriptor artifacts satisfy the implemented SCC obligations.
 
