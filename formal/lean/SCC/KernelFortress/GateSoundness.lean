@@ -77,6 +77,11 @@ def GateProp (env : Env) (b : Bundle) (prev next : State) : Prop :=
   LineageContinues prev next /\
   ModeSound b
 
+instance instDecidableGateProp (env : Env) (b : Bundle) (prev next : State) :
+    Decidable (GateProp env b prev next) := by
+  unfold GateProp Required ProtectedIsolation HaltAbsorbing RiskToHalt LineageContinues ModeSound
+  infer_instance
+
 def GateBool (env : Env) (b : Bundle) (prev next : State) : Bool :=
   decide (GateProp env b prev next)
 
