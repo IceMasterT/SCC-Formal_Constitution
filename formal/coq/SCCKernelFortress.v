@@ -1,3 +1,5 @@
+(* SPDX-License-Identifier: Apache-2.0 *)
+(* Copyright 2025-2026 Ian Farquharson *)
 Require Import Coq.Bool.Bool.
 Require Import Coq.Arith.Arith.
 Require Import Coq.micromega.Lia.

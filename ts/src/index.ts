@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025-2026 Ian Farquharson
 import { createHash } from 'node:crypto';
 export type HashHex=string; export type StepMode='Exact'|'Stutter'|'SafeRefined';
 export interface SCCState{schema_version:string;state_id:string;step:number;compute_root:HashHex;memory_root:HashHex;vector_clock:Record<string,number>;governance_weights:number[];failure_mode:number;audit_hash:HashHex;risk_vector:number[];lineage_root:HashHex;protected_root:HashHex}

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025-2026 Ian Farquharson
 #![allow(missing_docs)]
 #![allow(dead_code)]
 use std::{collections::BTreeMap, fs, path::PathBuf};

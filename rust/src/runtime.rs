@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025-2026 Ian Farquharson
 //! Runtime boundary wrappers. The checker itself remains pure and side-effect free.
 
 use serde::{Deserialize, Serialize};

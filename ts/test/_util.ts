@@ -1,1 +1,3 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025-2026 Ian Farquharson
 import { readFileSync, readdirSync } from 'node:fs'; import { join } from 'node:path'; import { fileURLToPath } from 'node:url'; import type { Fixture } from '../src/index.ts'; const repo=fileURLToPath(new URL('../../',import.meta.url)); export const readFixture=(p:string)=>JSON.parse(readFileSync(join(repo,p),'utf8')) as Fixture; export const listGolden=()=>readdirSync(join(repo,'golden')).filter(x=>x.endsWith('.json')&&x!=='manifest.json').sort(); export const listNegative=()=>readdirSync(join(repo,'negative_corpus/cases')).filter(x=>x.endsWith('.json')).sort(); export {repo,join,readFileSync};

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025-2026 Ian Farquharson
 //! Deterministic transition helpers for tests and fixture generation.
 
 use crate::{
