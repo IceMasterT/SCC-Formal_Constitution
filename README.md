@@ -6,6 +6,7 @@
 <img src="https://img.shields.io/github/license/IceMasterT/SCC-Formal_Constitution" alt="License">
 <img src="https://img.shields.io/github/v/release/IceMasterT/SCC-Formal_Constitution?label=Version" alt="Version">
 <img src="https://img.shields.io/github/stars/IceMasterT/SCC-Formal_Constitution?style=social" alt="Stars">
+[![arXiv](https://img.shields.io/badge/arXiv-ARXIV__ID-b31b1b.svg)](https://arxiv.org/abs/ARXIV_ID)
 
 </div>
 
