@@ -38,7 +38,7 @@
 \maketitle
 
 \begin{abstract}
-Stateful AI and agentic systems increasingly operate through tool-use loops, memory updates, external calls, policy constraints, recovery paths, and audit traces. These systems may emit logs, traces, policy declarations, or post-hoc explanations, but those artifacts do not by themselves verify that each runtime transition was admissible before it entered accepted execution history. We present \KF, an executable evaluation framework for runtime-compliance claims in stateful agentic systems. The framework implements a deterministic pre-acceptance checker over a previous state, candidate next state, canonical event, audit event, proof-obligation bundle, and execution descriptor. A candidate transition is accepted only when its evidence satisfies the implemented Synthetic Cognitive Coding obligations: canonical encoding agreement, audit-chain consistency, protected-coordinate isolation, governance-state validity, risk-to-halt enforcement, halt absorption, lineage continuation, and normalized \Exact/\Stutter/\SafeRefined\ step classification. The release includes a Rust source-of-truth checker, a TypeScript reference checker, committed golden vectors, binary canonical vectors, a negative corpus with named first-failure gates, property-test scaffolding, fuzz targets, a Lean/Coq formal bridge for the implemented v1 subset, federation evidence fixtures, numerical-stability bounds, a trusted computing base ledger, and CI release gates. The contribution is deliberately narrow: \KF\ does not claim general AI safety, full theorem mechanization of the entire \SCC\ canon, compiler correctness, operating-system correctness, or cryptographic soundness of SHA-256. Its claim is smaller and testable: it turns selected \SCC\ obligations into reproducible executable gates that reject named transition failures before state acceptance. As an Evaluations \& Datasets artifact, it contributes a reusable protocol, fixture corpus, and executable tool for testing transition-legality claims in stateful agentic runtimes. \KF\ is therefore the executable boundary artifact; the Full \SCC\ Canon is the formal authority it points back to.
+Stateful agentic systems operate through tool-use loops, memory updates, external calls, and audit traces, yet existing mechanisms do not reject invalid runtime transitions before state acceptance. We present \KF, an executable evaluation framework that implements a deterministic pre-acceptance checker over a previous state, candidate next state, canonical event, audit event, proof-obligation bundle, and execution descriptor. A transition is accepted only when its evidence satisfies the implemented \SCC\ obligations: canonical encoding agreement, audit-chain consistency, protected-coordinate isolation, governance-state validity, risk-to-halt enforcement, halt absorption, lineage continuation, and normalized \Exact/\Stutter/\SafeRefined\ step classification. The release includes a Rust source-of-truth checker, TypeScript reference checker, golden vectors with binary canonical bytes, a 14-case negative corpus with named first-failure gates, property-test scaffolding, fuzz targets, a Lean/Coq formal bridge for the implemented v1 subset, federation evidence fixtures, numerical-stability bounds, a trusted computing base ledger, and CI release gates. \KF\ does not claim general AI safety, full \SCC\ theorem mechanization, or compiler, operating-system, or cryptographic correctness. As an Evaluations \& Datasets artifact, it contributes a reusable protocol and fixture corpus for testing transition-legality claims in stateful agentic runtimes. \KF\ is the executable boundary artifact; the Full \SCC\ Canon is the formal authority it points back to.
 \end{abstract}
 
 \section{Introduction}
@@ -190,6 +190,13 @@ The checker is a predicate over a previous state $s$, next state $s'$, event $e$
 \mathrm{accepts}(p,s,s',e,a,\Theta) \in \{\Ok,\Err(r)\}.
 \end{equation}
 It is pure: no wall-clock time, randomness, network calls, environment variables, mutable globals, telemetry, or product runtime decisions participate in the decision.
+\begin{lstlisting}[caption={Rust source-of-truth checker public signature.}]
+pub fn accepts(
+    po: &POBundle, prev: &SCCState, next: &SCCState,
+    event: &CanonicalEvent, audit_event: &AuditEvent,
+    env: &ExecutionEnv,
+) -> Result<(), CheckerError> { ... }
+\end{lstlisting}
 
 \begin{table}[t]
 \caption{Canon-to-executable mapping.}
@@ -229,7 +236,14 @@ Given the induced exact successor $\widehat{T}(\widehat{\rho}(s),e)$, the classi
 \Stutter:&\quad \widehat{\rho}(s') = \widehat{\rho}(s),\\
 \SafeRefined:&\quad \widehat{\rho}(s') \preceq_{safe} \widehat{T}(\widehat{\rho}(s),e).
 \end{align}
-The v1 safety preorder keeps structural coordinates stable, permits no greater total risk, and forbids lowering the failure mode. A bundle whose declared mode disagrees with the classifier is rejected.
+The v1 safety preorder is defined coordinatewise:
+\begin{equation}
+  s' \preceq_{safe} t \;\iff\;
+  \mathrm{coord}(s') = \mathrm{coord}(t)
+  \;\wedge\; \textstyle\sum_i r_i(s') \leq \textstyle\sum_i r_i(t)
+  \;\wedge\; \mathrm{mode}(s') \geq \mathrm{mode}(t),
+\end{equation}
+where $\mathrm{coord}$ denotes the structural coordinates (compute root, memory root, vector clock, governance weights, protected root), $r_i$ are risk-vector components, and $\mathrm{mode}$ is failure-mode severity (higher is more severe). A bundle whose declared mode disagrees with the classifier is rejected.
 
 Governance weights must lie in the probability simplex. The transition helper uses the standard sort-threshold-renormalize projection family for simplex or $\ell_1$-ball constraints \citep{duchi2008projection,wang2013simplex}. The checker does not trust a projection witness blindly: it checks that the next vector lies in the simplex and that L2 drift is within the descriptor bound.
 
@@ -295,7 +309,7 @@ Mechanization target & Translate the Rust gate and fixture obligations into proo
 
 \section{Mechanization, stress, federation, and numerical hardening}
 \label{sec:mech-hardening}
-This release turns the prior mechanization roadmap into a concrete bridge for the implemented v1 subset. The supplement includes a Lean 4 micro-model of the gate, a seven-stage witness formalization, and a Coq proof fragment for required-bundle reflection and quorum-intersection arithmetic. The mechanized claim is intentionally scoped: in the small formal model, acceptance implies Prop-level v1 obligations such as required bundle fields, protected-coordinate preservation, halt absorption, risk-to-halt implication, lineage continuation, and stage-witness completeness. The bridge does not prove the entire \SCC\ canon, compiler correctness, SHA-256 security, or operating-system correctness.
+This release turns the prior mechanization roadmap into a concrete bridge for the implemented v1 subset. The supplement includes a Lean 4~\citep{lean4} micro-model of the gate, a seven-stage witness formalization, and a Coq~\citep{coq} proof fragment for required-bundle reflection and quorum-intersection arithmetic. The mechanized claim is intentionally scoped: in the small formal model, acceptance implies Prop-level v1 obligations such as required bundle fields, protected-coordinate preservation, halt absorption, risk-to-halt implication, lineage continuation, and stage-witness completeness. The bridge does not prove the entire \SCC\ canon, compiler correctness, SHA-256 security, or operating-system correctness.
 
 \begin{table}[t]
 \caption{Hardening additions beyond the single-node fixture corpus.}
@@ -336,6 +350,16 @@ Agent and tool-use evaluations such as AgentBench, ToolLLM/ToolBench, ToolSandbo
 The bridge to the Full \SCC\ Canon is the central contribution. \KF\ shows that selected canonical obligations can become machinery. The canon explains the law behind that machinery. Together, they make runtime compliance reviewable, reproducible, and falsifiable: A system that cannot prove the legality of its next step has no right to take it.
 
 \begin{thebibliography}{99}
+\bibitem[de~Moura and Ullrich(2021)]{lean4}
+Leonardo de~Moura and Sebastian Ullrich.
+The {Lean 4} theorem prover and programming language.
+In \emph{Proceedings of the 28th International Conference on Automated Deduction (CADE-28)}, pages 625--635, 2021.
+
+\bibitem[{The Coq Development Team}(2024)]{coq}
+{The Coq Development Team}.
+\emph{The {Coq} Proof Assistant, version 8.19}.
+Zenodo, 2024. \url{https://doi.org/10.5281/zenodo.10616045}
+
 \bibitem[Farquharson(2026a)]{scc-canon}
 Ian Farquharson. \emph{Synthetic Cognitive Coding (SCC): Formal Constitutional-Operational Specification, Final Canon, Scholarly Edition}. Author-identified supplemental manuscript, 2026.
 
