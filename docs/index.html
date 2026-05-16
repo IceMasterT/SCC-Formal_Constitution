@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SCC Kernel Fortress — Executable Compliance Gates for Agentic AI</title>
+<meta name="description" content="A formally-verified pre-acceptance compliance checker for stateful AI transitions. v16.0.0 — CI green. Lean 4 bridge. 14 named rejection gates. Apache 2.0.">
+<meta property="og:title" content="SCC Kernel Fortress">
+<meta property="og:description" content="A system that cannot prove the legality of its next step has no right to take it.">
+<meta property="og:type" content="website">
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1a1a1a;
+    --muted: #6b7280;
+    --accent: #1d4ed8;
+    --accent-hover: #1e3a8a;
+    --code-bg: #f3f4f6;
+    --border: #e5e7eb;
+    --green: #15803d;
+    --tag-bg: #eff6ff;
+    --tag-fg: #1d4ed8;
+    --warn-bg: #fefce8;
+    --warn-fg: #713f12;
+    --serif: Georgia, 'Times New Roman', serif;
+    --mono: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--fg);
+    font-size: 16px;
+    line-height: 1.65;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ── header ── */
+  header {
+    padding: 56px 0 40px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .version-badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    color: var(--green);
+    margin-bottom: 16px;
+    letter-spacing: 0.02em;
+  }
+
+  .version-badge::before { content: "● "; }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+
+  .subtitle {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 560px;
+    margin-bottom: 28px;
+  }
+
+  .cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 9px 18px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn-primary:hover { background: var(--accent-hover); }
+
+  .btn-secondary {
+    background: var(--code-bg);
+    color: var(--fg);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover { background: var(--border); }
+
+  /* ── sections ── */
+  section { padding: 44px 0; border-bottom: 1px solid var(--border); }
+  section:last-of-type { border-bottom: none; }
+
+  h2 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+  }
+
+  p { margin-bottom: 14px; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── thesis block ── */
+  .thesis {
+    font-family: var(--serif);
+    font-size: 20px;
+    line-height: 1.55;
+    border-left: 3px solid var(--accent);
+    padding: 16px 20px;
+    color: var(--fg);
+    background: var(--tag-bg);
+    border-radius: 0 6px 6px 0;
+    margin: 20px 0;
+  }
+
+  /* ── code blocks ── */
+  pre {
+    font-family: var(--mono);
+    font-size: 13px;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    line-height: 1.55;
+    margin: 16px 0;
+  }
+
+  code {
+    font-family: var(--mono);
+    font-size: 13px;
+    background: var(--code-bg);
+    padding: 1px 5px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+  }
+
+  pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+  }
+
+  /* ── gate grid ── */
+  .gate-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 8px;
+    margin: 16px 0;
+  }
+
+  .gate {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 10px;
+    color: var(--fg);
+  }
+
+  /* ── property table ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin: 16px 0;
+  }
+
+  th {
+    text-align: left;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-bottom: 2px solid var(--border);
+    background: var(--code-bg);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+  }
+
+  td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  td:first-child { font-family: var(--mono); font-size: 12px; white-space: nowrap; }
+
+  /* ── non-claim box ── */
+  .nonclaim {
+    background: var(--warn-bg);
+    border: 1px solid #fde68a;
+    border-radius: 6px;
+    padding: 14px 18px;
+    font-size: 14px;
+    color: var(--warn-fg);
+    margin: 16px 0;
+  }
+
+  .nonclaim strong { display: block; margin-bottom: 4px; }
+
+  /* ── evidence tiers ── */
+  .tier-list { list-style: none; margin: 12px 0; }
+
+  .tier-list li {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+
+  .tier-list li:last-child { border-bottom: none; }
+
+  .tier-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    min-width: 72px;
+    padding-top: 1px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── tags ── */
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+
+  .tag {
+    font-size: 12px;
+    background: var(--tag-bg);
+    color: var(--tag-fg);
+    border: 1px solid #bfdbfe;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-weight: 500;
+  }
+
+  /* ── footer ── */
+  footer {
+    padding: 36px 0;
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    align-items: center;
+  }
+
+  footer a { color: var(--muted); text-decoration: none; }
+  footer a:hover { color: var(--accent); }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ── responsive ── */
+  @media (max-width: 520px) {
+    h1 { font-size: 22px; }
+    .thesis { font-size: 17px; }
+    .cta-row { flex-direction: column; align-items: flex-start; }
+    .gate-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="version-badge">v16.0.0 — CI green — Apache 2.0</div>
+  <h1>SCC Kernel Fortress</h1>
+  <p class="subtitle">
+    An executable, formally-verified pre-acceptance compliance checker
+    for stateful AI and agentic systems.
+  </p>
+  <div class="cta-row">
+    <a class="btn btn-primary" href="https://github.com/IceMasterT/SCC-Formal_Constitution">GitHub Repository</a>
+    <a class="btn btn-secondary" href="#paper">Paper (NeurIPS 2026)</a>
+    <a class="btn btn-secondary" href="#verify">Verify in 5 minutes</a>
+  </div>
+</header>
+
+
+<!-- ── THESIS ── -->
+<section>
+  <blockquote class="thesis">
+    A system that cannot prove the legality of its next step
+    has no right to take it.
+  </blockquote>
+
+  <p>
+    Stateful AI systems can erase execution lineage, mutate protected memory,
+    bypass halt conditions, and accept states without machine-checkable
+    justification — and still produce output that passes every output-layer
+    evaluation. These are <strong>transition-validity failures</strong>.
+    They are invisible to logs, prompts, and post-hoc audits.
+  </p>
+
+  <p>
+    SCC Kernel Fortress makes transition legality a pre-acceptance predicate.
+    Before a candidate next state enters the accepted trajectory, it must pass a
+    deterministic checker. If the proof-obligation bundle is absent, malformed,
+    or fails any of the implemented constitutional obligations, the transition is
+    <strong>rejected</strong> — not logged, not warned about, rejected.
+  </p>
+
+  <div class="tags">
+    <span class="tag">Formal Verification</span>
+    <span class="tag">AI Safety</span>
+    <span class="tag">Lean 4</span>
+    <span class="tag">Rust</span>
+    <span class="tag">Agentic Systems</span>
+    <span class="tag">EU AI Act</span>
+    <span class="tag">Runtime Compliance</span>
+  </div>
+</section>
+
+
+<!-- ── HOW IT WORKS ── -->
+<section>
+  <h2>How it works</h2>
+
+  <p>
+    The checker is a pure Rust function — no wall-clock time, no randomness,
+    no network calls, no mutable globals:
+  </p>
+
+<pre><code>pub fn accepts(
+    po: &amp;POBundle, prev: &amp;SCCState, next: &amp;SCCState,
+    event: &amp;CanonicalEvent, audit_event: &amp;AuditEvent,
+    env: &amp;ExecutionEnv,
+) -&gt; Result&lt;(), CheckerError&gt;</code></pre>
+
+  <p>
+    Every legal transition must carry a <strong>proof-obligation bundle</strong>
+    — eight Boolean fields attesting to domain validity, invariant satisfaction,
+    governance bounds, risk law, audit chain continuity, protected-coordinate
+    isolation, and refinement classification. A transition with any false field,
+    or no bundle at all, is rejected before state acceptance.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Constitutional obligation</th>
+        <th>What it enforces</th>
+        <th>Lean 4 theorem</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>ProtectedIsolation</td>
+        <td>Safety-critical coordinates cannot change in ordinary execution</td>
+        <td><code>accepted_preserves_protected</code></td>
+      </tr>
+      <tr>
+        <td>HaltAbsorbing</td>
+        <td>Halt is an absorbing state — cannot exit without authorized recovery</td>
+        <td><code>check_accept_sound</code> ∘ <code>HaltAbsorbing</code></td>
+      </tr>
+      <tr>
+        <td>RiskToHalt</td>
+        <td>Risk ≥ threshold forces failure mode 3</td>
+        <td><code>RiskToHalt</code> conjunct of <code>GateProp</code></td>
+      </tr>
+      <tr>
+        <td>LineageContinues</td>
+        <td>Execution history must extend — no erasure, no gaps</td>
+        <td><code>LineageContinues</code> conjunct of <code>GateProp</code></td>
+      </tr>
+      <tr>
+        <td>Required(b)</td>
+        <td>All eight proof-obligation fields must be true</td>
+        <td><code>Required</code> conjunct of <code>GateProp</code></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ── NAMED GATES ── -->
+<section>
+  <h2>14 named rejection gates</h2>
+
+  <p>
+    Each failure class has a committed JSON fixture, an expected first-failure
+    gate, and a canon article mapping. A checker that accepts a negative fixture,
+    or rejects at the wrong gate, fails the release gate.
+  </p>
+
+  <div class="gate-grid">
+    <span class="gate">audit_event_hash_bad</span>
+    <span class="gate">checker_version_mismatch</span>
+    <span class="gate">descriptor_mismatch_audit</span>
+    <span class="gate">event_hash_bad</span>
+    <span class="gate">halt_absorption_violation</span>
+    <span class="gate">invalid_simplex</span>
+    <span class="gate">lineage_erasure</span>
+    <span class="gate">missing_required_field</span>
+    <span class="gate">next_hash_bad</span>
+    <span class="gate">prev_hash_bad</span>
+    <span class="gate">protected_mutation</span>
+    <span class="gate">risk_threshold_without_halt</span>
+    <span class="gate">schema_mismatch</span>
+    <span class="gate">wrong_step_mode</span>
+  </div>
+</section>
+
+
+<!-- ── FORMAL BRIDGE ── -->
+<section>
+  <h2>Lean 4 formal bridge</h2>
+
+  <p>
+    <code>formal/lean/SCC/KernelFortress/GateSoundness.lean</code> proves
+    Bool-to-Prop soundness for the implemented v1 subset:
+    if <code>GateBool env b prev next = true</code> then
+    <code>GateProp env b prev next</code> holds.
+    The gate property is made <strong>decidable</strong> via
+    <code>instDecidableGateProp</code>, derived automatically by
+    <code>infer_instance</code>.
+  </p>
+
+  <p>
+    <code>PipelineWitness.lean</code> formalizes the seven-stage witness bridge.
+    A Coq proof fragment covers required-bundle reflection and
+    quorum-intersection arithmetic.
+  </p>
+
+  <p>
+    No <code>sorry</code>, no <code>admit</code>, no unledgered axioms.
+    Enforced by <code>tools/validate_formal_artifacts.py</code> in CI.
+  </p>
+
+  <div class="nonclaim">
+    <strong>Non-claim</strong>
+    The formal bridge covers the implemented v1 subset.
+    It does not prove compiler correctness, operating-system correctness,
+    SHA-256 security, full SCC canon mechanization, or that the Rust
+    implementation faithfully corresponds to the Lean model.
+    These limits are in the published
+    <a href="https://github.com/IceMasterT/SCC-Formal_Constitution/blob/main/docs/tcb_ledger.md">TCB ledger</a>.
+  </div>
+</section>
+
+
+<!-- ── VERIFY ── -->
+<section id="verify">
+  <h2>Verify in 5 minutes</h2>
+
+  <ul class="tier-list">
+    <li>
+      <span class="tier-label">Clone</span>
+      <div>
+<pre><code>git clone https://github.com/IceMasterT/SCC-Formal_Constitution.git
+cd SCC-Formal_Constitution
+bash scripts/verify_in_5_minutes.sh</code></pre>
+        Runs vector validation (17 fixtures), forbidden-import scan,
+        and the TypeScript reference suite (22 tests) without Rust or Lean.
+      </div>
+    </li>
+    <li>
+      <span class="tier-label">Docker</span>
+      <div>
+<pre><code>docker build -t scc-kernel-fortress .
+docker run --rm scc-kernel-fortress</code></pre>
+        Full release gate — Rust tests, TypeScript tests, formal static scan,
+        vector validation — in a reproducible container.
+      </div>
+    </li>
+    <li>
+      <span class="tier-label">Full</span>
+      <div>
+<pre><code>make test</code></pre>
+        Requires Rust 1.78+, Node 22+. Runs all suites including
+        proptest invariants, memory-lineage compression, numerical stability,
+        and federation quorum tests.
+      </div>
+    </li>
+  </ul>
+</section>
+
+
+<!-- ── PAPER ── -->
+<section id="paper">
+  <h2>Paper</h2>
+
+  <p>
+    <strong>SCC Kernel Fortress: Executable Evaluation Gates for Runtime
+    Compliance in Agentic Systems</strong><br>
+    Ian Farquharson — NeurIPS 2026 Datasets &amp; Benchmarks track
+  </p>
+
+  <p>
+    The paper presents the evaluation protocol, canon-to-executable mapping,
+    case study of representative agent-loop failures, baseline comparison
+    against monitoring mechanisms that do not enforce pre-acceptance rejection,
+    evidence tiers for reproducing the artifact claim, and the full
+    threat-model and non-claim boundaries.
+  </p>
+
+  <div class="cta-row" style="margin-top:16px">
+    <!-- Replace href values once arxiv DOI is live -->
+    <a class="btn btn-primary" href="https://arxiv.org/abs/PLACEHOLDER">arxiv preprint</a>
+    <a class="btn btn-secondary" href="https://github.com/IceMasterT/SCC-Formal_Constitution/blob/main/paper/Ian_Farquharson_SCC_Kernel_Fortress_NeurIPS2026_ED_Submission.pdf">PDF (GitHub)</a>
+  </div>
+</section>
+
+
+<!-- ── CONTACT ── -->
+<section>
+  <h2>Contact &amp; collaboration</h2>
+
+  <p>
+    I'm looking for: researchers who want to use the negative corpus as a
+    benchmark or extend the Lean mechanization; engineers integrating
+    compliance gates into agentic CI pipelines; AI safety organizations
+    interested in the formal bridge as safety-case infrastructure;
+    and independent checker implementations in any language.
+  </p>
+
+  <p>
+    <strong>Ian Farquharson</strong><br>
+    <a href="mailto:tech@mysms.promo">tech@mysms.promo</a> ·
+    <a href="https://github.com/IceMasterT/SCC-Formal_Constitution">GitHub</a>
+  </p>
+</section>
+
+
+<!-- ── FOOTER ── -->
+<footer>
+  <span>SCC Kernel Fortress v16.0.0</span>
+  <a href="https://github.com/IceMasterT/SCC-Formal_Constitution">Repository</a>
+  <a href="https://github.com/IceMasterT/SCC-Formal_Constitution/blob/main/LICENSE">Apache 2.0</a>
+  <a href="https://github.com/IceMasterT/SCC-Formal_Constitution/blob/main/docs/tcb_ledger.md">TCB Ledger</a>
+  <a href="https://github.com/IceMasterT/SCC-Formal_Constitution/blob/main/COPYING.md">Licensing</a>
+</footer>
+
+</body>
+</html>

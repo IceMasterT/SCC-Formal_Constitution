@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025-2026 Ian Farquharson
 //! Domain-separated SHA-256 helpers.
 
 use sha2::{Digest, Sha256};

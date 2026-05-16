@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2025-2026 Ian Farquharson
 FROM rust:1.78-bookworm
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates python3 \

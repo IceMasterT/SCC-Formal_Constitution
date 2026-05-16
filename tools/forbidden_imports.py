@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2025-2026 Ian Farquharson
 from __future__ import annotations
 from pathlib import Path
 import re, sys

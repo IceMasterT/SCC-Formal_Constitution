@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2025-2026 Ian Farquharson
+
 .PHONY: test quick rust-test ts-test validate forbidden formal paper clean manifest ci-evidence docker-build docker-test
 
 test:

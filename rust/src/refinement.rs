@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025-2026 Ian Farquharson
 //! Normalized simulation projection and step classification.
 
 use std::collections::BTreeMap;
