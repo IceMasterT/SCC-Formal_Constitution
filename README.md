@@ -19,6 +19,7 @@ This repository is the cleaned source repository for the SCC Kernel Fortress art
 **Author / named edition:** Ian Farquharson  
 **Artifact family:** Synthetic Cognitive Coding (SCC) / Kernel Fortress  
 **Primary repository:** <https://github.com/IceMasterT/SCC-Formal_Constitution>  
+**Landing page:** <https://icemastert.github.io/SCC-Formal_Constitution/>  
 **Current package posture:** executable artifact package with strict release gates; Stage 0 release readiness is intentionally conservative.
 
 ---
