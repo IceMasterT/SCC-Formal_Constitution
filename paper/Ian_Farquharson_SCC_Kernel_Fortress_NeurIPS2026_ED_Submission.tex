@@ -420,5 +420,16 @@ The release package is intended to be evaluated as an executable artifact. The a
 \section{Supplementary mechanization and distributed notes}
 The supplement also contains \gate{formal/lean}, \gate{formal/coq}, \gate{mechanization\_manifest.json}, \gate{federation/}, \gate{docs/numerical\_stability\_tcb.md}, and \gate{docs/SCC\_SYSTEM\_OVERVIEW\_ONE\_PAGER.md}. The formal files are part of the evidence package; proof-assistant execution must be reported from a proof-equipped runner and must not be inferred from the static source tree alone.
 
-\input{checklist_filled}
+\paragraph{Reproducibility Statement.}
+The artifact is fully reproducible from the public repository at \url{https://github.com/IceMasterT/SCC-Formal_Constitution}.
+The release gate is:
+\begin{lstlisting}
+python tools/validate_vectors.py
+python tools/forbidden_imports.py
+cd rust && cargo test --all-features
+cd ts && npm test
+bash scripts/run_formal_gates.sh
+\end{lstlisting}
+The repository includes committed binary canonical vectors (\texttt{.bin}), a Docker image, and a CI workflow that executes the same commands on a Rust- and Node-equipped runner.
+All code is released under Apache~2.0; paper and fixture corpus under CC~BY~4.0; canonical documents under CC~BY-SA~4.0.
 \end{document}
