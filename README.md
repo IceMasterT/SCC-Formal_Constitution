@@ -6,7 +6,7 @@
 <img src="https://img.shields.io/github/license/IceMasterT/SCC-Formal_Constitution" alt="License">
 <img src="https://img.shields.io/github/v/release/IceMasterT/SCC-Formal_Constitution?label=Version" alt="Version">
 <img src="https://img.shields.io/github/stars/IceMasterT/SCC-Formal_Constitution?style=social" alt="Stars">
-[![arXiv](https://img.shields.io/badge/arXiv-ARXIV__ID-b31b1b.svg)](https://arxiv.org/abs/ARXIV_ID)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20248954-blue.svg)](https://doi.org/10.5281/zenodo.20248954)
 
 </div>
 
@@ -708,6 +708,8 @@ Companion long-form documents:
 ---
 
 ## Paper and author-identified copies
+
+**Preprint:** [https://doi.org/10.5281/zenodo.20248954](https://doi.org/10.5281/zenodo.20248954)
 
 The `paper/` directory contains NeurIPS-style paper sources and checklist material. Some files originated as anonymous or anonymized submission artifacts. Per the current repository cleanup, author-identified copies are kept alongside the original anonymous/submission-form files where applicable.
 
