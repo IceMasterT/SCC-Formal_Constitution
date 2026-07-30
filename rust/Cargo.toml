@@ -2,7 +2,7 @@
 name = "scc-kernel"
 version = "1.0.0"
 edition = "2021"
-rust-version = "1.78"
+rust-version = "1.85"
 license = "Apache-2.0"
 description = "Deterministic SCC proof-obligation checker kernel"
 publish = false

@@ -4,7 +4,7 @@ This supplement is an executable evaluation artifact for transition-level runtim
 
 ## Full release gate
 
-Run from the repository root on a CPU-only machine with Python 3, Node 22+, and Rust 1.78+:
+Run from the repository root on a CPU-only machine with Python 3, Node 22+, and Rust 1.85+:
 
 ```bash
 bash scripts/run_release_gates.sh

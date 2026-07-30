@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2025-2026 Ian Farquharson
-FROM rust:1.78-bookworm
+FROM rust:1.89-bookworm
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates python3 \
     && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
