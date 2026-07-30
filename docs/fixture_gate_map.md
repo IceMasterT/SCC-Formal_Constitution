@@ -18,3 +18,7 @@ Each negative-corpus fixture is committed as a JSON record and is expected to re
 | `risk_threshold_without_halt.json` | `risk_threshold_without_halt` | Risk threshold was crossed but failure mode did not enter halt. |
 | `lineage_erasure.json` | `lineage_erasure` | Runtime history continuation was severed. |
 | `wrong_step_mode.json` | `wrong_step_mode` | Declared step mode disagrees with checker classification. |
+| `invalid_step_mode.json` | `invalid_step_mode` | Declared step mode is not a recognized mode string. |
+| `governance_drift_violation.json` | `governance_drift_violation` | Governance weights stayed on the simplex but exceeded the ordinary drift bound. |
+| `prev_domain_violation.json` | `prev_domain_violation` | Previous state is outside the admissible domain, so no transition from it is lawful. |
+| `audit_prev_hash_bad.json` | `audit_prev_hash_bad` | Audit event does not chain to the previous accepted audit hash. |

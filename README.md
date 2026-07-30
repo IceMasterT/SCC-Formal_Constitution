@@ -320,7 +320,7 @@ Run the full release gate on a machine with:
 
 - Python 3;
 - Node 22+;
-- Rust 1.78+ or compatible toolchain;
+- Rust 1.85+ or compatible toolchain;
 - standard POSIX shell utilities.
 
 Command:
@@ -506,15 +506,19 @@ Representative gate classes:
 - bad next-state hash;
 - bad event hash;
 - bad audit-event hash;
+- broken previous-audit-hash chaining;
 - checker-version mismatch;
 - descriptor mismatch;
+- governance drift beyond the ordinary bound;
 - halt absorption violation;
+- inadmissible previous-state domain;
 - invalid simplex;
 - lineage erasure;
 - missing required field;
 - protected mutation;
 - risk threshold without halt;
 - schema mismatch;
+- unrecognized step-mode string;
 - wrong step mode.
 
 The reviewer-facing mapping is documented in:
@@ -847,7 +851,7 @@ Do not add broad claims without tests, manifests, and reviewer-visible evidence.
 
 ### `cargo` is unavailable
 
-Install Rust 1.78+ or use the Docker path. The quick non-Rust path can still validate vectors, forbidden imports, and TypeScript tests, but it does not establish the full release claim.
+Install Rust 1.85+ or use the Docker path. The quick non-Rust path can still validate vectors, forbidden imports, and TypeScript tests, but it does not establish the full release claim.
 
 ### `npm test` fails because dependencies are missing
 
