@@ -24,6 +24,9 @@ pub enum CanonicalError {
     /// A purported SHA-256 hex string was malformed.
     #[error("invalid hash hex")]
     InvalidHashHex,
+    /// A value has no canonical encoding (e.g. an unrecognized step mode).
+    #[error("value has no canonical encoding")]
+    UnsupportedValue,
 }
 
 /// Trait for deterministic canonical byte encoders.

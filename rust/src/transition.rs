@@ -49,5 +49,6 @@ fn mode_name(mode: StepMode) -> &'static str {
         StepMode::Exact => "exact",
         StepMode::Stutter => "stutter",
         StepMode::SafeRefined => "safe_refined",
+        StepMode::Unknown => "unknown",
     }
 }

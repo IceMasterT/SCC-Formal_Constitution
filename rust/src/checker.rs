@@ -62,7 +62,9 @@ pub fn accepts(
     {
         return Err(CheckerError::SchemaMismatch);
     }
-    if po.checker_version != env.checker_version {
+    if po.checker_version != env.checker_version
+        || env.numerical_mode != crate::env::SUPPORTED_NUMERICAL_MODE
+    {
         return Err(CheckerError::VersionMismatch);
     }
     if !matches!(
