@@ -11,5 +11,19 @@
     "parent_hash",
     "payload_hash",
     "attributes"
-  ]
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string" },
+    "event_id": { "type": "string" },
+    "kind": { "type": "string" },
+    "producer": { "type": "string" },
+    "step": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+    "parent_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "payload_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "attributes": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    }
+  }
 }

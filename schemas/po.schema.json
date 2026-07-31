@@ -22,5 +22,30 @@
     "authorized_meta_path",
     "recovery_path",
     "witness_refs"
-  ]
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string" },
+    "checker_version": { "type": "string" },
+    "step_id": { "type": "string" },
+    "mode": { "enum": ["Exact", "Stutter", "SafeRefined"] },
+    "dom": { "type": "boolean" },
+    "inv": { "type": "boolean" },
+    "identity": { "type": "boolean" },
+    "governance": { "type": "boolean" },
+    "risk": { "type": "boolean" },
+    "audit": { "type": "boolean" },
+    "isolation": { "type": "boolean" },
+    "refinement": { "type": "boolean" },
+    "prev_state_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "next_state_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "event_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "audit_event_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "authorized_meta_path": { "type": "boolean" },
+    "recovery_path": { "type": "boolean" },
+    "witness_refs": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    }
+  }
 }
