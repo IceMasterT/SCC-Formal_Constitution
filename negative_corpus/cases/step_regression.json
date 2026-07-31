@@ -1,0 +1,118 @@
+{
+  "audit_event": {
+    "schema_version": "scc.audit.v1",
+    "step_id": "step:valid_exact",
+    "prev_audit_hash": "8ddcbb3c3121200631b0b3ec997972f5b70828b6bef111b39193628718772eb2",
+    "event_hash": "7e793be91a4f0d502a1891610fca55528544d037652ab3ec62869e61143f5208",
+    "prev_state_hash": "81e19e4e29e7a0f915164c8eb345976ca5b1c7baf1f11e65c5b947e9674b2ce1",
+    "next_state_body_hash": "2c45a9cb2805122debdf917137decacd45c179724580c492836ff92781e61e9c",
+    "checker_version": "scc-checker-1.0.0",
+    "descriptor_hash": "35dc5c92dcf0879f7552487bfeb4d6678265ef54d6e8cd94190f04d81400985d"
+  },
+  "env": {
+    "checker_version": "scc-checker-1.0.0",
+    "descriptor_hash": "35dc5c92dcf0879f7552487bfeb4d6678265ef54d6e8cd94190f04d81400985d",
+    "expected_audit_schema": "scc.audit.v1",
+    "expected_event_schema": "scc.event.v1",
+    "expected_po_schema": "scc.po.v1",
+    "expected_state_schema": "scc.state.v1",
+    "max_governance_drift": 0.25,
+    "max_risk_value": 1,
+    "numerical_mode": "deterministic-f64-be-v1",
+    "risk_halt_threshold": 1,
+    "simplex_epsilon": 1e-9
+  },
+  "event": {
+    "attributes": {
+      "build_id": "build:golden-v1"
+    },
+    "event_id": "event:valid_exact",
+    "kind": "compute_commit",
+    "parent_hash": "945d091fbb67d1499f2d43da391e47105e452825dc8e6cd52ef264ccb825b695",
+    "payload_hash": "9b125c86c9841ef145611d0fab477b0b64098d6564f723f8c8e64c9eecb9074c",
+    "producer": "agent",
+    "schema_version": "scc.event.v1",
+    "step": 0
+  },
+  "expected": {
+    "accepted": false,
+    "error": "LineageViolation"
+  },
+  "hashes": {
+    "prev_state_hash": "81e19e4e29e7a0f915164c8eb345976ca5b1c7baf1f11e65c5b947e9674b2ce1",
+    "next_state_hash": "71c93fb84acd6ff32e0a52f8bfb1f4186aa7a9bdf310ec3d9cf61cb42451ccee",
+    "event_hash": "7e793be91a4f0d502a1891610fca55528544d037652ab3ec62869e61143f5208",
+    "audit_event_hash": "a847efd0de2d315f545f8db21eefe091fb58d0b05b5363ede4376dce85fccf2e",
+    "po_hash": "d865e069a79b47786510e088bc772af1c1a4860dd61b1bd65872fb1a681da1ed"
+  },
+  "name": "step_regression",
+  "next": {
+    "audit_hash": "a847efd0de2d315f545f8db21eefe091fb58d0b05b5363ede4376dce85fccf2e",
+    "compute_root": "d81a83fb2ea9c1a2031b07288b3a68c007a383a0320d74a6a45744159191a829",
+    "failure_mode": 0,
+    "governance_weights": [
+      0.6,
+      0.4
+    ],
+    "lineage_root": "8baf3dd6837f532c91f12eff565f0dae885b1dafc30169b3fe33f58b894134fa",
+    "memory_root": "2914c91ef0022fd7fe84586d52d99aa6cf6ff0e7d3ef646a2bdfb810bde4b89a",
+    "protected_root": "a544324f78a058c849064d7baca0ffb0465bbcd97d734a6192013d8b9fa886c6",
+    "risk_vector": [
+      0.2,
+      0.1
+    ],
+    "schema_version": "scc.state.v1",
+    "state_id": "state:1:exact",
+    "step": 0,
+    "vector_clock": {
+      "agent": 1
+    }
+  },
+  "po": {
+    "audit": true,
+    "audit_event_hash": "a847efd0de2d315f545f8db21eefe091fb58d0b05b5363ede4376dce85fccf2e",
+    "authorized_meta_path": false,
+    "checker_version": "scc-checker-1.0.0",
+    "dom": true,
+    "event_hash": "7e793be91a4f0d502a1891610fca55528544d037652ab3ec62869e61143f5208",
+    "governance": true,
+    "identity": true,
+    "inv": true,
+    "isolation": true,
+    "mode": "Exact",
+    "next_state_hash": "71c93fb84acd6ff32e0a52f8bfb1f4186aa7a9bdf310ec3d9cf61cb42451ccee",
+    "prev_state_hash": "81e19e4e29e7a0f915164c8eb345976ca5b1c7baf1f11e65c5b947e9674b2ce1",
+    "recovery_path": false,
+    "refinement": true,
+    "risk": true,
+    "schema_version": "scc.po.v1",
+    "step_id": "step:valid_exact",
+    "witness_refs": {
+      "canon": "Articles F9,C11,29-32,35-36,52-55",
+      "mode": "Exact",
+      "transition": "deterministic-reference-v1"
+    }
+  },
+  "prev": {
+    "audit_hash": "8ddcbb3c3121200631b0b3ec997972f5b70828b6bef111b39193628718772eb2",
+    "compute_root": "d4e8fd0d387e5a7bd6628189e20cd2ef837bf616c5e0a0953202dd33ae1f4128",
+    "failure_mode": 0,
+    "governance_weights": [
+      0.6,
+      0.4
+    ],
+    "lineage_root": "4a1cc108174df44ecef9879b3ddb7d6fec36d60cf490e96c10caf7434aa73ea3",
+    "memory_root": "2914c91ef0022fd7fe84586d52d99aa6cf6ff0e7d3ef646a2bdfb810bde4b89a",
+    "protected_root": "a544324f78a058c849064d7baca0ffb0465bbcd97d734a6192013d8b9fa886c6",
+    "risk_vector": [
+      0.2,
+      0.1
+    ],
+    "schema_version": "scc.state.v1",
+    "state_id": "state:0",
+    "step": 0,
+    "vector_clock": {
+      "agent": 0
+    }
+  }
+}

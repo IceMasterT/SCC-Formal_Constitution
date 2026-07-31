@@ -22,3 +22,5 @@ Each negative-corpus fixture is committed as a JSON record and is expected to re
 | `governance_drift_violation.json` | `governance_drift_violation` | Governance weights stayed on the simplex but exceeded the ordinary drift bound. |
 | `prev_domain_violation.json` | `prev_domain_violation` | Previous state is outside the admissible domain, so no transition from it is lawful. |
 | `audit_prev_hash_bad.json` | `audit_prev_hash_bad` | Audit event does not chain to the previous accepted audit hash. |
+| `step_regression.json` | `step_regression` | Step counter failed to advance by exactly one. |
+| `event_step_mismatch.json` | `event_step_mismatch` | Event declares a step that does not match the transition. |

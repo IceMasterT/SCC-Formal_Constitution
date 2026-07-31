@@ -6,6 +6,7 @@
     "checker_version_mismatch",
     "descriptor_mismatch_audit",
     "event_hash_bad",
+    "event_step_mismatch",
     "governance_drift_violation",
     "halt_absorption_violation",
     "invalid_simplex",
@@ -18,6 +19,7 @@
     "protected_mutation",
     "risk_threshold_without_halt",
     "schema_mismatch",
+    "step_regression",
     "wrong_step_mode"
   ]
 }
