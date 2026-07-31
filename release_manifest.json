@@ -4,8 +4,8 @@
   "items": [
     {
       "path": "README.md",
-      "sha256": "bfa97b2c6898302002983e77a9d39ba856ce503f2a881fdcae8d6113d0faa7d9",
-      "bytes": 33985
+      "sha256": "186f1c56209e6f046ee1bfe7048ccbdfa8d3c909b80f98b0edb06da7c3edd1ab",
+      "bytes": 34123
     },
     {
       "path": "Makefile",
@@ -19,8 +19,8 @@
     },
     {
       "path": "release_manifest.json",
-      "sha256": "8859562abcca434c83166548ed39e0d094af566b2505fcaefa71ecf5c0dea43c",
-      "bytes": 27665
+      "sha256": "d800c307622adff2c3c572ddeffd1d6e26585e980cbf6785b74d88a7cbfd3ef6",
+      "bytes": 25908
     },
     {
       "path": "mechanization_manifest.json",
@@ -49,13 +49,13 @@
     },
     {
       "path": "rust/src/canonical.rs",
-      "sha256": "635198e5b89f32b4665b21e0a985832052828e13721277076e7e4486a1e0cc5d",
-      "bytes": 4527
+      "sha256": "9bc51f95c165b4a9cfd5f3561939386c4b8814c3eb58086b2a5180f43a518ea1",
+      "bytes": 5196
     },
     {
       "path": "rust/src/checker.rs",
-      "sha256": "f630eda296fcdba474185035525a415246b5d60422dd1078d1a096e5f51de377",
-      "bytes": 4405
+      "sha256": "a2cab1b1ef995be2fc572a99f92865f43161cd233c368774458d5be0c421f262",
+      "bytes": 4543
     },
     {
       "path": "rust/src/env.rs",
@@ -64,8 +64,8 @@
     },
     {
       "path": "rust/src/events.rs",
-      "sha256": "320628388fa30c0da2c797edaf85947507bcd196806f64e5a1e4b159540816f7",
-      "bytes": 1556
+      "sha256": "e00a9109a006a2536f3942f83f74b97f13994740a1fcaed6200baf67cd095320",
+      "bytes": 1557
     },
     {
       "path": "rust/src/governance.rs",
@@ -104,8 +104,8 @@
     },
     {
       "path": "rust/src/state.rs",
-      "sha256": "2c6cb93b12b1df229d38aadb776da5f1f5af08f35b94c850fea4e83121697f2e",
-      "bytes": 5204
+      "sha256": "3cc45dbab80bf6857bf6ee2977add83fd54d76e531cc284cae9f24cda4da4a03",
+      "bytes": 5205
     },
     {
       "path": "rust/src/transition.rs",
@@ -144,8 +144,8 @@
     },
     {
       "path": "rust/tests/proptest_invariants.rs",
-      "sha256": "0314f054d3013348033bca7df031a1f92f528f8125c867bf2b92d6c177af825e",
-      "bytes": 1637
+      "sha256": "2d31c1b7728ac2595ec67661bb76c4920c43b940bb31e0db6a26698e07afafcc",
+      "bytes": 8443
     },
     {
       "path": "rust/fuzz/Cargo.toml",
@@ -164,8 +164,8 @@
     },
     {
       "path": "ts/src/index.ts",
-      "sha256": "543a65cdcae0631cb7acdea722c06e058cbe095fc1fd1382af0ec1293e820c88",
-      "bytes": 11828
+      "sha256": "c61f9598c3284b23a48978788b1d30a2e3474199cc72e8f530aef0a1787f59a3",
+      "bytes": 12130
     },
     {
       "path": "ts/test/_util.ts",
@@ -214,6 +214,31 @@
     },
     {
       "path": "golden/bin/valid_exact.prev_state.bin",
+      "sha256": "81e19e4e29e7a0f915164c8eb345976ca5b1c7baf1f11e65c5b947e9674b2ce1",
+      "bytes": 273
+    },
+    {
+      "path": "golden/bin/valid_proto_producer.audit_event.bin",
+      "sha256": "bdaddbcacb77e46453af5df91b2ea1564934d90e86a5ae1a16f90096805fc3b9",
+      "bytes": 239
+    },
+    {
+      "path": "golden/bin/valid_proto_producer.event.bin",
+      "sha256": "c391a6cb9c724b99159b9fc7c21768a28d12ac71078acdd1f97d2cd973224c55",
+      "bytes": 191
+    },
+    {
+      "path": "golden/bin/valid_proto_producer.next_state.bin",
+      "sha256": "afebc18c5aeb6f233d1a0c0a1603856095f7fc3fdc2a61c295bcbdcdee9fa858",
+      "bytes": 300
+    },
+    {
+      "path": "golden/bin/valid_proto_producer.po.bin",
+      "sha256": "291d7fd691eebceac7fc43790c70120c4685ba588c349b77226c252aa98643b0",
+      "bytes": 332
+    },
+    {
+      "path": "golden/bin/valid_proto_producer.prev_state.bin",
       "sha256": "81e19e4e29e7a0f915164c8eb345976ca5b1c7baf1f11e65c5b947e9674b2ce1",
       "bytes": 273
     },
@@ -269,13 +294,18 @@
     },
     {
       "path": "golden/manifest.json",
-      "sha256": "77856d4b10db3b8cfaebb2490668c4095da8fbae698392c51066480154b9bcbe",
-      "bytes": 207
+      "sha256": "05ca2378f3782f6028332b8f56cbdb094b4f9bf92f1a6156f08618712b1f54b0",
+      "bytes": 235
     },
     {
       "path": "golden/valid_exact.json",
       "sha256": "bd75edb1f35dfc2d57eda92990b01866b292b34d9b150bacc64235bdb6954f35",
       "bytes": 4354
+    },
+    {
+      "path": "golden/valid_proto_producer.json",
+      "sha256": "95e10eb949c3c7af8daa0d2098a14d731d113c1e592a782a095293601aed50c2",
+      "bytes": 4384
     },
     {
       "path": "golden/valid_safe_refined.json",
@@ -311,6 +341,11 @@
       "path": "negative_corpus/cases/event_hash_bad.json",
       "sha256": "2d50c404ea7fe93993575e40ee90d6ecfd73389292db9a75787c59349ae13337",
       "bytes": 4378
+    },
+    {
+      "path": "negative_corpus/cases/event_step_mismatch.json",
+      "sha256": "515ab96cbf2529cda32e9b53b7352c1e90c8d9984e30aa58cd264a5eaf2c5880",
+      "bytes": 4372
     },
     {
       "path": "negative_corpus/cases/governance_drift_violation.json",
@@ -373,29 +408,34 @@
       "bytes": 4371
     },
     {
+      "path": "negative_corpus/cases/step_regression.json",
+      "sha256": "fd5bca98d46fbe3c1f8290484b7d5be0d78e32b79cdc413a518cff99476c9164",
+      "bytes": 4368
+    },
+    {
       "path": "negative_corpus/cases/wrong_step_mode.json",
       "sha256": "20df2835926a39edf4ba372560ea829dec752d3ec8e8c68164dbda371ccc0a18",
       "bytes": 4380
     },
     {
       "path": "negative_corpus/manifest.json",
-      "sha256": "786204277523aed6a18e4fb63520635933bb5b979bf3b3531962e12652022bf6",
-      "bytes": 555
+      "sha256": "f8f66a59e909c3f0c267800f910e4df0b4b69bd1d37c145b242e03a3be4cd1a8",
+      "bytes": 605
     },
     {
       "path": "schemas/event.schema.json",
-      "sha256": "1d31dc76dfb404c7e653ba6050105c847e3fbac23851adb0c2c09df7d7f34ceb",
-      "bytes": 264
+      "sha256": "b5e79f88d7a05877a382f9a93fe61ae7a9c44fd4c9268fa8c70227dd9576d122",
+      "bytes": 794
     },
     {
       "path": "schemas/po.schema.json",
-      "sha256": "fdcee7a4b2c72b5f41e9ea63b9080626b03e85c3e03e2c17ed0559bc32783315",
-      "bytes": 471
+      "sha256": "9c94be0eb704b193b78364fd60e1d261e4415698f795ec2911f04ef8b447414d",
+      "bytes": 1504
     },
     {
       "path": "schemas/state.schema.json",
-      "sha256": "1de44301007c923deb051616a490c7c4b65c2035d0b6469d446160ac62672c12",
-      "bytes": 363
+      "sha256": "1fb09d44b3a63a4796360da80721dc5c609ded686faad35c69ce4b3267edd638",
+      "bytes": 1374
     },
     {
       "path": "docs/SCC_Engineering_Handbook_Kernel_Fortress_MECH_10_10.pdf",
@@ -444,13 +484,13 @@
     },
     {
       "path": "docs/canonical_encoding.md",
-      "sha256": "33c07fb4303ab39ff649fd664951fe8b6bee5ba497d6296663065e319d235de6",
-      "bytes": 1003
+      "sha256": "7e69dad10222f867c5e66e4abbf47446cc9c9f6d9f14e36042bd19d7982c3411",
+      "bytes": 1183
     },
     {
       "path": "docs/checker_walkthrough.md",
-      "sha256": "40a7cb9e13cbe67dd969e779c65de430049b3fd58ca052275142307e66a6beae",
-      "bytes": 1357
+      "sha256": "7c10d386e66d19dba37bf1a9cac4f0da3215847b62237480e5ccb00855fe0435",
+      "bytes": 1643
     },
     {
       "path": "docs/ci_evidence_lock.md",
@@ -469,8 +509,8 @@
     },
     {
       "path": "docs/fixture_gate_map.md",
-      "sha256": "027768d34e4139e534257dd75c4ab872eeb523f8d0b7140a1b0343de25220771",
-      "bytes": 2479
+      "sha256": "acbe49e666685fe7f41eba854fff2cced13183fff636719558dbfc441517dd19",
+      "bytes": 2690
     },
     {
       "path": "docs/index.html",
@@ -579,8 +619,8 @@
     },
     {
       "path": "tools/validate_vectors.py",
-      "sha256": "86986a1ef1299d94799009fca1a45638768dafc87fe0f20a005aac55ea24acee",
-      "bytes": 2446
+      "sha256": "ba4697d00b454b0775431499301f07d419ea17a5a0ebdc64c39f6060ef28791b",
+      "bytes": 5835
     },
     {
       "path": "scripts/collect_ci_evidence.sh",
@@ -594,8 +634,8 @@
     },
     {
       "path": "scripts/run_release_gates.sh",
-      "sha256": "186531c92c54d68828f6c01dee8a0ebaafd43bf615c4deef827cf49159ad22da",
-      "bytes": 1268
+      "sha256": "4e390d4f42db842c613200df1197082f9850c0a8787a27f3ebbacb36b1cd5dc0",
+      "bytes": 1347
     },
     {
       "path": "scripts/stage0_prelaunch_gate.sh",
@@ -614,8 +654,8 @@
     },
     {
       "path": ".github/workflows/release.yml",
-      "sha256": "206914c1a35958dda1c53e2d8b33073ef560625ec6cd82cb9b481564240013be",
-      "bytes": 1238
+      "sha256": "a3d17aa0b9cee9db9fce09dfaabe04a46a103cbc091310885faf47ee6927312c",
+      "bytes": 1357
     },
     {
       "path": "paper/Ian_Farquharson_NeurIPS2026_checklist.tex",

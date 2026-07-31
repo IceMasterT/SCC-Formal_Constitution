@@ -9,8 +9,19 @@
 # Generated evidence/artifacts (local)
 /validation/
 
+# Python bytecode caches
+__pycache__/
+
 # Lean local build cache
 /formal/lean/.lake/
+
+# Coq local compilation artifacts
+/formal/coq/*.vo
+/formal/coq/*.vok
+/formal/coq/*.vos
+/formal/coq/*.glob
+/formal/coq/.*.aux
+/formal/coq/.lia.cache
 
 # Release artifacts (built, not source)
 /releases/
