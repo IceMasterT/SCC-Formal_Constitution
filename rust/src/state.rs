@@ -53,7 +53,7 @@ pub fn state_bytes(state: &SCCState, include_audit: bool) -> Result<Vec<u8>, Can
     w.tag("SCC-STATE-v1")?;
     w.string(&state.schema_version)?;
     w.string(&state.state_id)?;
-    w.u64(state.step);
+    w.u64(state.step)?;
     w.hash_hex(&state.compute_root)?;
     w.hash_hex(&state.memory_root)?;
     w.vector_clock(&state.vector_clock)?;

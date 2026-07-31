@@ -40,7 +40,7 @@ impl CanonicalBytes for CanonicalEvent {
         w.string(&self.event_id)?;
         w.string(&self.kind)?;
         w.string(&self.producer)?;
-        w.u64(self.step);
+        w.u64(self.step)?;
         w.hash_hex(&self.parent_hash)?;
         w.hash_hex(&self.payload_hash)?;
         w.string_map(&self.attributes)?;

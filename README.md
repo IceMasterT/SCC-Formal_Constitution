@@ -158,7 +158,7 @@ The checker enforces the following classes of obligations:
 9. **Governance simplex validity** — governance weights must remain a valid simplex vector within descriptor tolerance.
 10. **Governance drift bounds** — ordinary governance updates must stay within configured drift bounds.
 11. **Risk-threshold-to-halt law** — risk above the threshold must imply halt escalation.
-12. **Lineage continuation** — state lineage must extend rather than erase accepted history.
+12. **Lineage continuation** — state lineage must extend rather than erase accepted history, and the step counter must advance by exactly one with the event bound to the same step.
 13. **Audit-chain determinism** — audit events and installed audit hashes must match deterministic recomputation.
 14. **Step classification** — accepted transitions must classify as `Exact`, `Stutter`, or `SafeRefined`.
 
@@ -518,6 +518,8 @@ Representative gate classes:
 - protected mutation;
 - risk threshold without halt;
 - schema mismatch;
+- step-counter regression;
+- event-step mismatch;
 - unrecognized step-mode string;
 - wrong step mode.
 
