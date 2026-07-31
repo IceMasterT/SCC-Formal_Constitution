@@ -12,10 +12,14 @@ for rel in root_files:
     p = ROOT / rel
     if p.exists() and p.is_file():
         items.append({'path': rel, 'sha256': hashlib.sha256(p.read_bytes()).hexdigest(), 'bytes': p.stat().st_size})
+EXCLUDED_DIRS = {'.lake', 'lake-packages', 'target', 'node_modules', '__pycache__'}
 for d in include_dirs:
     for p in sorted((ROOT/d).rglob('*')):
-        if p.is_file() and not p.name.endswith(('.aux','.log','.out','.fls','.fdb_latexmk','.bbl','.blg')):
-            items.append({'path': str(p.relative_to(ROOT)), 'sha256': hashlib.sha256(p.read_bytes()).hexdigest(), 'bytes': p.stat().st_size})
+        if not p.is_file() or p.name.endswith(('.aux','.log','.out','.fls','.fdb_latexmk','.bbl','.blg','.vo','.vok','.vos','.glob')):
+            continue
+        if EXCLUDED_DIRS.intersection(p.relative_to(ROOT).parts):
+            continue
+        items.append({'path': str(p.relative_to(ROOT)), 'sha256': hashlib.sha256(p.read_bytes()).hexdigest(), 'bytes': p.stat().st_size})
 manifest = {'schema': 'scc.release_manifest.v1', 'version': '1.0.0', 'items': items}
 out = ROOT / 'release_manifest.json'
 out.write_text(json.dumps(manifest, indent=2) + '\n')

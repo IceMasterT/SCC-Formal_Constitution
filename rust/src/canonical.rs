@@ -12,6 +12,13 @@ use thiserror::Error;
 
 use crate::hash::HashHex;
 
+/// Largest integer exactly representable in every supported carrier.
+///
+/// JSON carriers pass through IEEE-754 binary64 in the TypeScript reference
+/// checker, so u64 fields are bounded to 2^53 - 1 to guarantee that both
+/// implementations hash identical bytes for identical carrier files.
+pub const MAX_CARRIER_INT: u64 = (1 << 53) - 1;
+
 /// Error returned by canonical encoders.
 #[derive(Debug, Error, Clone, PartialEq, Eq)]
 pub enum CanonicalError {
@@ -24,6 +31,12 @@ pub enum CanonicalError {
     /// A purported SHA-256 hex string was malformed.
     #[error("invalid hash hex")]
     InvalidHashHex,
+    /// A value has no canonical encoding (e.g. an unrecognized step mode).
+    #[error("value has no canonical encoding")]
+    UnsupportedValue,
+    /// An integer exceeds the exact JSON-carrier range of 2^53 - 1.
+    #[error("integer exceeds JSON carrier precision")]
+    IntegerOutOfCarrierRange,
 }
 
 /// Trait for deterministic canonical byte encoders.
@@ -71,9 +84,13 @@ impl CanonicalWriter {
         self.bytes.extend_from_slice(&x.to_be_bytes());
     }
 
-    /// Append a u64 in network byte order.
-    pub fn u64(&mut self, x: u64) {
+    /// Append a carrier-bounded u64 in network byte order.
+    pub fn u64(&mut self, x: u64) -> Result<(), CanonicalError> {
+        if x > MAX_CARRIER_INT {
+            return Err(CanonicalError::IntegerOutOfCarrierRange);
+        }
         self.bytes.extend_from_slice(&x.to_be_bytes());
+        Ok(())
     }
 
     /// Append a UTF-8 string with a u32 length prefix.
@@ -139,7 +156,7 @@ impl CanonicalWriter {
         self.u32(len);
         for (k, v) in m {
             self.string(k)?;
-            self.u64(*v);
+            self.u64(*v)?;
         }
         Ok(())
     }

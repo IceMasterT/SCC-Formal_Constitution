@@ -21,6 +21,9 @@ pub enum StepMode {
     Stutter,
     /// Normalized next state is no less safe than the induced abstract successor.
     SafeRefined,
+    /// Any unrecognized step-mode string; always rejected by the step-mode gate.
+    #[serde(other)]
+    Unknown,
 }
 
 /// Typed proof-obligation bundle.
@@ -104,6 +107,7 @@ impl CanonicalBytes for POBundle {
             StepMode::Exact => "Exact",
             StepMode::Stutter => "Stutter",
             StepMode::SafeRefined => "SafeRefined",
+            StepMode::Unknown => return Err(CanonicalError::UnsupportedValue),
         };
         w.string(mode)?;
         for b in [

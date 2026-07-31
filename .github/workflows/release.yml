@@ -10,7 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.89.0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -26,6 +28,7 @@ jobs:
           mkdir -p dist
           cp -R docs golden negative_corpus schemas rust ts tools scripts formal federation dist/
           cp release_manifest.json README.md Makefile Dockerfile dist/
+          rm -rf dist/rust/target dist/ts/node_modules dist/formal/lean/.lake
           (cd dist && zip -r ../scc-kernel-fortress-${GITHUB_REF_NAME}.zip .)
           sha256sum scc-kernel-fortress-${GITHUB_REF_NAME}.zip > scc-kernel-fortress-${GITHUB_REF_NAME}.sha256
       - uses: actions/upload-artifact@v4
@@ -34,4 +37,4 @@ jobs:
           path: |
             scc-kernel-fortress-${{ github.ref_name }}.zip
             scc-kernel-fortress-${{ github.ref_name }}.sha256
-            ci_evidence/**
+            validation/**

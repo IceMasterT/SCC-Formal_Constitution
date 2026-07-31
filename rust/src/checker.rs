@@ -62,7 +62,9 @@ pub fn accepts(
     {
         return Err(CheckerError::SchemaMismatch);
     }
-    if po.checker_version != env.checker_version {
+    if po.checker_version != env.checker_version
+        || env.numerical_mode != crate::env::SUPPORTED_NUMERICAL_MODE
+    {
         return Err(CheckerError::VersionMismatch);
     }
     if !matches!(
@@ -101,6 +103,9 @@ pub fn accepts(
         return Err(CheckerError::RiskThresholdBreach);
     }
 
+    if prev.step.checked_add(1) != Some(next.step) || event.step != next.step {
+        return Err(CheckerError::LineageViolation);
+    }
     let expected_lineage =
         expected_lineage_root(prev, event).map_err(|_| CheckerError::HashVerificationFailed)?;
     if next.lineage_root != expected_lineage {

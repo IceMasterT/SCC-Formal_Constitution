@@ -13,7 +13,6 @@
     "checker_version": "scc-checker-1.0.0",
     "descriptor_hash": "35dc5c92dcf0879f7552487bfeb4d6678265ef54d6e8cd94190f04d81400985d",
     "expected_audit_schema": "scc.audit.v1",
-    "expected_build_id": "build:golden-v1",
     "expected_event_schema": "scc.event.v1",
     "expected_po_schema": "scc.po.v1",
     "expected_state_schema": "scc.state.v1",

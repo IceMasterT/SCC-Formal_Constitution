@@ -1,7 +1,7 @@
 {
   "schema": "scc.mechanization_manifest.v1",
   "scope": "implemented_kernel_fortress_v1_subset",
-  "claim": "accepted v1 gate implies Prop-level v1 obligations in the small formal model",
+  "claim": "accepted v1 gate implies Prop-level v1 obligations in the small formal model, including Exact/Stutter/SafeRefined mode obligations; modeled rejections name their first failed gate",
   "lean_targets": [
     "formal/lean/SCC/KernelFortress/GateSoundness.lean",
     "formal/lean/SCC/KernelFortress/PipelineWitness.lean"

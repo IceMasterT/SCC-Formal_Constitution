@@ -11,10 +11,15 @@ The formal bridge covers the implemented v1 subset:
 - halt absorption,
 - risk-to-halt implication,
 - lineage continuation,
+- `Exact`/`Stutter`/`SafeRefined` step-mode obligations against a normalized
+  projection and induced abstract successor (`ModeSound`),
+- first-failure gate naming: the modeled `Check` pipeline rejects with the name
+  of the first failed gate, and naming soundness is proved for representative
+  gates (`reject_protected_names_violation`, `reject_refinement_names_violation`),
 - seven-stage witness completeness,
 - quorum-intersection arithmetic for the federation evidence layer.
 
-The key proof shape is Bool-to-Prop reflection: if the executable gate accepts in the small formal model, the Prop-level obligation holds.
+The key proof shape is Bool-to-Prop reflection: if the executable gate accepts in the small formal model, the Prop-level obligation holds (`check_accept_sound`, with `check_accept_iff_gateBool` tying the pipeline to the decision procedure).
 
 ## What remains outside the proof
 

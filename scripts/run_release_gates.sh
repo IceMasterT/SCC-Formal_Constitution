@@ -18,6 +18,8 @@ python3 tools/forbidden_imports.py
 python3 tools/validate_formal_artifacts.py
 (
   cd rust
+  cargo fmt --check
+  cargo clippy --all-targets --all-features -- -D warnings
   cargo test --all-features
   cargo test --test negative_corpus
   cargo test --test golden_vectors
